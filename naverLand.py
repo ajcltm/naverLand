@@ -1,3 +1,5 @@
+from dataclasses import dataclass, field
+from typing import List
 import requests
 import time
 
@@ -121,6 +123,84 @@ class ArticleInfoProvider:
         r = requests.get(url, headers=headers)
         return r.json()
 
+@dataclass
+class ArticleDataClass:
+    articleNo : str
+    articleName : str
+    exposeStartYMD : str
+    exposeEndYMD : str
+    articleConfirmYMD : str
+    aptName : str
+    aptHouseholdCount : str
+    aptConstructionCompanyName : str
+    aptUseApproveYmd : str
+    totalDongCount : str
+    realestateTypeCode : str
+    tradeTypeName : str
+    verificationTypeCode : str
+    cityName : str
+    divisionName : str
+    sectionName : str
+    householdCountByPtp : str
+    walkingTimeToNearSubway : str
+    detailAddress : str
+    roomCount : str
+    bathroomCount : str
+    moveInTypeCode : str
+    moveInDiscussionPossibleYN : str
+    monthlyManagementCost : str
+    monthlyManagementCostIncludeItemName : str
+    buildingName : str
+    articleFeatureDescription : str
+    detailDescription : str
+    floorLayerName : str
+    tagList : List = field(default_factory=List)
+
+
+
+class ArticleDataClassTransfier:
+
+    def transfer(self, articleInfo):
+        articleDetail = articleInfo.get('articleDetail')
+        articleNo = articleDetail.get('articleNo')
+        articleName = articleDetail.get('articleName')
+        exposeStartYMD = articleDetail.get('exposeStartYMD')
+        exposeEndYMD = articleDetail.get('exposeEndYMD')
+        articleConfirmYMD = articleDetail.get('articleConfirmYMD')
+        aptName = articleDetail.get('aptName')
+        aptHouseholdCount = articleDetail.get('aptHouseholdCount')
+        aptConstructionCompanyName = articleDetail.get('aptConstructionCompanyName')
+        aptUseApproveYmd = articleDetail.get('aptUseApproveYmd')
+        totalDongCount = articleDetail.get('totalDongCount')
+        realestateTypeCode = articleDetail.get('realestateTypeCode')
+        tradeTypeName = articleDetail.get('tradeTypeName')
+        verificationTypeCode = articleDetail.get('verificationTypeCode')
+        cityName = articleDetail.get('cityName')
+        divisionName = articleDetail.get('divisionName')
+        sectionName = articleDetail.get('sectionName')
+        householdCountByPtp = articleDetail.get('householdCountByPtp')
+        walkingTimeToNearSubway = articleDetail.get('walkingTimeToNearSubway')
+        detailAddress = articleDetail.get('detailAddress')
+        roomCount = articleDetail.get('roomCount')
+        bathroomCount = articleDetail.get('bathroomCount')
+        moveInTypeCode = articleDetail.get('moveInTypeCode')
+        moveInDiscussionPossibleYN = articleDetail.get('moveInDiscussionPossibleYN')
+        monthlyManagementCost = articleDetail.get('monthlyManagementCost')
+        monthlyManagementCostIncludeItemName = articleDetail.get('monthlyManagementCostIncludeItemName')
+        buildingName = articleDetail.get('buildingName')
+        articleFeatureDescription = articleDetail.get('articleFeatureDescription')
+        detailDescription = articleDetail.get('detailDescription')
+        floorLayerName = articleDetail.get('floorLayerName')
+        tagList = articleDetail.get('tagList')
+        
+        articleAddition = articleInfo['articleAddition']
+        data = ArticleDataClass(
+            articleNo,articleName,exposeStartYMD,exposeEndYMD,articleConfirmYMD,aptName,aptHouseholdCount,aptConstructionCompanyName,aptUseApproveYmd,totalDongCount,realestateTypeCode
+            ,tradeTypeName,verificationTypeCode,cityName,divisionName,sectionName,householdCountByPtp,walkingTimeToNearSubway,detailAddress,roomCount,bathroomCount,moveInTypeCode,
+            moveInDiscussionPossibleYN,monthlyManagementCost,monthlyManagementCostIncludeItemName,buildingName,articleFeatureDescription,detailDescription,floorLayerName,tagList)
+        return data
+
+
 class export_target_tag:
 
     def __init__(self, tag_):
@@ -177,6 +257,15 @@ if __name__ == '__main__' :
     # article_1_info = ArticleInfoProvider().get_articleInfo(articleNo)
     # print('='*100)
     # print(f'article info :\n {article_1_info}')
+
+    article_no = '2200337131'
+    article_1_info = ArticleInfoProvider().get_articleInfo(article_no)
+    print('='*100)
+    print(f'article info :\n {article_1_info}')
+    data = ArticleDataClassTransfier().transfer(article_1_info)
+    print('='*100)
+    print(f'data :\n {data}')
+
 
     # article_info = export_target_tag(tag_='세안고').export_article_info()
     # print(article_info)
