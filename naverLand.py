@@ -1,11 +1,11 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from typing import List
 import requests
 import time
 
 class GuListProvider:
 
-    def get_regionList(self):
+    def get_data(self):
         url = 'https://new.land.naver.com/api/regions/list?cortarNo=1100000000'
         headers = {
             'Accept': '*/*',
@@ -29,7 +29,7 @@ class GuListProvider:
 
 class DongListProvider:
 
-    def get_regionList(self, dong):
+    def get_data(self, dong):
         url = f'https://new.land.naver.com/api/regions/list?cortarNo={dong}'
         headers = {
             'Accept': '*/*',
@@ -53,7 +53,7 @@ class DongListProvider:
 
 class ComplexListProvider:
 
-    def get_complexList(self, cortarNo):
+    def get_data(self, cortarNo):
         url = f'https://new.land.naver.com/api/regions/complexes?cortarNo={cortarNo}&realEstateType=APT&order='
         headers = {
             'Accept': '*/*',
@@ -77,7 +77,7 @@ class ComplexListProvider:
 
 class ArticleListProvider:
 
-    def get_articleList(self, complexNo, tradeType='A1'):            #tradeType  A1: 매매, B1: 전세
+    def get_data(self, complexNo, tradeType='A1'):            #tradeType  A1: 매매, B1: 전세
         url = f'https://new.land.naver.com/api/articles/complex/{complexNo}?realEstateType=APT&tradeType={tradeType}&tag=%3A%3A%3A%3A%3A%3A%3A%3A&rentPriceMin=0&rentPriceMax=900000000&priceMin=0&priceMax=900000000&areaMin=0&areaMax=900000000&oldBuildYears&recentlyBuildYears&minHouseHoldCount&maxHouseHoldCount&showArticle=false&sameAddressGroup=false&minMaintenanceCost&maxMaintenanceCost&priceType=RETAIL&directions=&page=1&complexNo={complexNo}&buildingNos=&areaNos=&type=list&order=rank'
         headers = {
             'Accept': '*/*',
@@ -101,7 +101,7 @@ class ArticleListProvider:
 
 class ArticleInfoProvider:
 
-    def get_articleInfo(self, articleNo):
+    def get_data(self, articleNo):
         url = f'https://new.land.naver.com/api/articles/{articleNo}?complexNo='
         headers = {
             'Accept': '*/*',
@@ -121,7 +121,39 @@ class ArticleInfoProvider:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
         }
         r = requests.get(url, headers=headers)
-        return r.text
+        return r.json()
+
+@dataclass
+class ComplexArticle:
+    complexNo : str
+    articleNoList : List = field(default_factory=List)
+
+class ComplexArticleProvider:
+
+    def get_data(self, complexNo):
+        articleList = ArticleListProvider().get_data(complexNo, 'A1')['articleList']
+        articleNoList = [article.get('articleNo') for article in articleList]
+        data = ComplexArticle(complexNo, articleNoList)
+        return data
+
+
+class Looper:
+
+    def __init__(self, list, operator, nextLooper=None):
+        list = list
+        operator = operator
+        nextLooper = nextLooper
+
+    def operate(self):
+        return [self.operator.get_data(item) for item in self.list]
+    
+    def handle(self):
+        if self.nextLooper :
+            for item in self.list:
+                self.nextLooper.operate()
+        else :
+            self.operate()
+
 
 @dataclass
 class ArticleDataClass:
@@ -281,23 +313,23 @@ class export_target_tag:
         self.tag = tag_
 
     def export_article_info(self):
-        guList = GuListProvider().get_regionList()['regionList']
+        guList = GuListProvider().get_data()['regionList']
         for k in range(0, len(guList)) :
             time.sleep(1)
             gu = guList[k]['cortarNo']
-            dongList = DongListProvider().get_regionList(gu)['regionList']
+            dongList = DongListProvider().get_data(gu)['regionList']
             for i in range(0, len(dongList)):
                 time.sleep(1)
                 dong = dongList[i]['cortarNo']
-                complexList = ComplexListProvider().get_complexList(dong)['complexList']
+                complexList = ComplexListProvider().get_data(dong)['complexList']
                 for z in range(0, len(complexList)):
                     time.sleep(1)
                     complexNo = complexList[z]['complexNo']
-                    articleList = ArticleListProvider().get_articleList(complexNo, 'A1')['articleList']
+                    articleList = ArticleListProvider().get_data(complexNo, 'A1')['articleList']
                     for w in range(0, len(articleList)):
                         time.sleep(1)
                         articleNo = articleList[w]['articleNo']
-                        article_info = ArticleInfoProvider().get_articleInfo(articleNo)
+                        article_info = ArticleInfoProvider().get_data(articleNo)
                         keys = list(article_info.keys())
                         tagList = article_info[keys[0]].get('tagList')
                         print(tagList)
@@ -307,35 +339,35 @@ class export_target_tag:
 
 if __name__ == '__main__' :
 
-    # guList = GuListProvider().get_regionList()
+    # guList = GuListProvider().get_data()
     # print('='*100)
     # print(f'GuList :\n {guList}')
 
     # gangnamgu = guList['regionList'][0]['cortarNo']
-    # dongList = DongListProvider().get_regionList(gangnamgu)
+    # dongList = DongListProvider().get_data(gangnamgu)
     # print('='*100)
     # print(f'dongList :\n {dongList}')
 
     # gaepodong = dongList['regionList'][0]['cortarNo']
 
-    # complexList = ComplexListProvider().get_complexList(gaepodong)
+    # complexList = ComplexListProvider().get_data(gaepodong)
     # print('='*100)
     # print(f'complexList :\n {complexList}')
 
     # lg_apt = complexList['complexList'][0]['complexNo']
-    # article = ArticleListProvider().get_articleList(lg_apt, 'A1')
+    # article = ArticleListProvider().get_data(lg_apt, 'A1')
     # print('='*100)
     # print(f'article :\n {article}')
     # articleNo = article['articleList'][0]['articleNo']
 
-    # article_1_info = ArticleInfoProvider().get_articleInfo(articleNo)
+    # article_1_info = ArticleInfoProvider().get_data(articleNo)
     # print('='*100)
     # print(f'article info :\n {article_1_info}')
 
-    article_no = '2200337131'
-    article_1_info = ArticleInfoProvider().get_articleInfo(article_no)
-    print('='*100)
-    print(f'article info :\n {article_1_info}')
+    # article_no = '2200337131'
+    # article_1_info = ArticleInfoProvider().get_data(article_no)
+    # print('='*100)
+    # print(f'article info :\n {article_1_info}')
     # data = ArticleDataClassTransfier().transfer(article_1_info)
     # print('='*100)
     # print(f'data :\n {data}')
@@ -343,3 +375,31 @@ if __name__ == '__main__' :
 
     # article_info = export_target_tag(tag_='세안고').export_article_info()
     # print(article_info)
+
+    guList = GuListProvider().get_data()
+    print('='*100)
+    print(f'GuList :\n {guList}')
+
+    gangnamgu = guList['regionList'][0]['cortarNo']
+    dongList = DongListProvider().get_data(gangnamgu)
+    print('='*100)
+    print(f'dongList :\n {dongList}')
+
+    gaepodong = dongList['regionList'][0]['cortarNo']
+
+    complexList = ComplexListProvider().get_data(gaepodong)
+    print('='*100)
+    print(f'complexList :\n {complexList}')
+
+    # dongLooper = Looper(dongList[:2])
+    # complexLooper = Looper(complexList[:2])
+    
+    complexNo = '8928'
+    complexArticle = ComplexArticleProvider().get_data(complexNo)
+    print(f'complex - article : {complexArticle}')
+
+    reverse = {articleNo : complexArticle.complexNo for articleNo in complexArticle.articleNoList}
+    print(reverse)
+    import pandas as pd
+    print(pd.Series(reverse.values(), index=reverse.keys()))
+
