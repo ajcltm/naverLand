@@ -121,7 +121,7 @@ class ArticleInfoProvider:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
         }
         r = requests.get(url, headers=headers)
-        return r.json()
+        return r.text
 
 @dataclass
 class ArticleDataClass:
@@ -154,8 +154,36 @@ class ArticleDataClass:
     articleFeatureDescription : str
     detailDescription : str
     floorLayerName : str
-    tagList : List = field(default_factory=List)
 
+    floorInfo : str
+    priceChangeState : str
+    dealOrWarrantPrc : str
+    direction : str
+    latitude : str
+    longitude : str
+    entranceTypeName : str
+    rentPrice : str
+    dealPrice : str
+    warrantPrice : str
+    allWarrantPrice : str
+    financePrice : str
+    premiumPrice : str
+    isalePrice : str
+    allRentPrice : str
+    priceBySpace : str
+    bondPrice : str
+    middlePayment : str
+
+    realtorName : str
+    representativeName : str
+    address : str
+    representativeTelNo : str
+    cellPhoneNo : str
+
+    supplySpace : str
+    exclusiveSpace : str
+    exclusiveRate : str
+    tagList : List = field(default_factory=List)
 
 
 class ArticleDataClassTransfier:
@@ -192,12 +220,58 @@ class ArticleDataClassTransfier:
         detailDescription = articleDetail.get('detailDescription')
         floorLayerName = articleDetail.get('floorLayerName')
         tagList = articleDetail.get('tagList')
+
+
         
         articleAddition = articleInfo['articleAddition']
+        floorInfo = articleAddition.get('floorInfo')
+        priceChangeState = articleAddition.get('priceChangeState')
+        dealOrWarrantPrc = articleAddition.get('dealOrWarrantPrc')
+        direction = articleAddition.get('direction')
+        latitude = articleAddition.get('latitude')
+        longitude = articleAddition.get('longitude')
+
+        articleFacility = articleInfo['articleFacility']       
+        entranceTypeName = articleFacility.get('entranceTypeName')
+
+        articlePrice = articleInfo['articlePrice']  
+        
+        rentPrice = articlePrice.get('rentPrice')
+        dealPrice = articlePrice.get('dealPrice')
+        warrantPrice = articlePrice.get('warrantPrice')
+        allWarrantPrice = articlePrice.get('allWarrantPrice')
+        financePrice = articlePrice.get('financePrice')
+        premiumPrice = articlePrice.get('premiumPrice')
+        isalePrice = articlePrice.get('isalePrice')
+        allRentPrice = articlePrice.get('allRentPrice')
+        priceBySpace = articlePrice.get('priceBySpace')
+        bondPrice = articlePrice.get('bondPrice')
+        middlePayment = articlePrice.get('middlePayment')
+
+        
+        articleRealtor = articleInfo['articleRealtor']  
+    
+        realtorName = articleRealtor.get('realtorName')
+        representativeName = articleRealtor.get('representativeName')
+        address = articleRealtor.get('address')
+        representativeTelNo = articleRealtor.get('representativeTelNo')
+        cellPhoneNo = articleRealtor.get('cellPhoneNo')
+
+        articleSpace = articleInfo['articleSpace'] 
+        supplySpace = articleSpace.get('supplySpace')
+        exclusiveSpace = articleSpace.get('exclusiveSpace')
+        exclusiveRate = articleSpace.get('exclusiveRate')
+
+
+
         data = ArticleDataClass(
             articleNo,articleName,exposeStartYMD,exposeEndYMD,articleConfirmYMD,aptName,aptHouseholdCount,aptConstructionCompanyName,aptUseApproveYmd,totalDongCount,realestateTypeCode
             ,tradeTypeName,verificationTypeCode,cityName,divisionName,sectionName,householdCountByPtp,walkingTimeToNearSubway,detailAddress,roomCount,bathroomCount,moveInTypeCode,
-            moveInDiscussionPossibleYN,monthlyManagementCost,monthlyManagementCostIncludeItemName,buildingName,articleFeatureDescription,detailDescription,floorLayerName,tagList)
+            moveInDiscussionPossibleYN,monthlyManagementCost,monthlyManagementCostIncludeItemName,buildingName,articleFeatureDescription,detailDescription,floorLayerName,
+            floorInfo, priceChangeState, dealOrWarrantPrc, direction, latitude, longitude, entranceTypeName, rentPrice, dealPrice, warrantPrice, allWarrantPrice, financePrice, 
+            premiumPrice, isalePrice, allRentPrice, priceBySpace, bondPrice, middlePayment, realtorName, representativeName, address, representativeTelNo, cellPhoneNo, supplySpace,
+            exclusiveSpace, exclusiveRate,tagList) 
+            
         return data
 
 
@@ -262,9 +336,9 @@ if __name__ == '__main__' :
     article_1_info = ArticleInfoProvider().get_articleInfo(article_no)
     print('='*100)
     print(f'article info :\n {article_1_info}')
-    data = ArticleDataClassTransfier().transfer(article_1_info)
-    print('='*100)
-    print(f'data :\n {data}')
+    # data = ArticleDataClassTransfier().transfer(article_1_info)
+    # print('='*100)
+    # print(f'data :\n {data}')
 
 
     # article_info = export_target_tag(tag_='세안고').export_article_info()
