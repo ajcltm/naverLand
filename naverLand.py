@@ -27,6 +27,10 @@ class GuListProvider:
         r = requests.get(url, headers=headers)
         return r.json()
 
+    def get_generator(self):
+        guList = self.get_data()
+        return (guList['regionList'][k]['cortarNo'] for k in [0])
+
 class DongListProvider:
 
     def get_data(self, dong):
@@ -51,6 +55,12 @@ class DongListProvider:
         r = requests.get(url, headers=headers)
         return r.json()
 
+    def get_generator(self, dong):
+        print(dong)
+        dongList = self.get_data(dong)
+        print(dongList)
+        return (dongList['regionList'][k]['cortarNo'] for k in [0])
+
 class ComplexListProvider:
 
     def get_data(self, cortarNo):
@@ -74,6 +84,12 @@ class ComplexListProvider:
         }
         r = requests.get(url, headers=headers)
         return r.json()
+
+    def get_generator(self, cortarNo):
+        complexList = self.get_data(list(cortarNo)[0])
+        print(complexList)
+        return (complexList['complexList'][0]['complexNo'] for k in [0])
+    
 
 class ArticleListProvider:
 
@@ -139,20 +155,23 @@ class ComplexArticleProvider:
 
 class Looper:
 
-    def __init__(self, list, operator, nextLooper=None):
-        list = list
-        operator = operator
-        nextLooper = nextLooper
+    def __init__(self, operator, nextLooper=None):
+        self.operator = operator
+        self.nextLooper = nextLooper
 
-    def operate(self):
-        return [self.operator.get_data(item) for item in self.list]
+    def execute(self, generator):
+        print('excute')
+        return (self.operator.get_generator(i) for i in generator)
     
-    def handle(self):
+    def handle_request(self, generator):
         if self.nextLooper :
-            for item in self.list:
-                self.nextLooper.operate()
+            print('next lopper!')
+            result = self.nextLooper.handle_request(self.execute(generator))
+            return result
         else :
-            self.operate()
+            print('my lopper!')
+            result = self.execute(generator)
+            return result
 
 
 @dataclass
@@ -376,30 +395,30 @@ if __name__ == '__main__' :
     # article_info = export_target_tag(tag_='세안고').export_article_info()
     # print(article_info)
 
-    guList = GuListProvider().get_data()
+    gu_generator = GuListProvider().get_generator()
     print('='*100)
-    print(f'GuList :\n {guList}')
+    print(f'GuList :\n {gu_generator}')
 
-    gangnamgu = guList['regionList'][0]['cortarNo']
-    dongList = DongListProvider().get_data(gangnamgu)
-    print('='*100)
-    print(f'dongList :\n {dongList}')
+    dongOperator = DongListProvider()
+    complexOperator = ComplexListProvider()
 
-    gaepodong = dongList['regionList'][0]['cortarNo']
+    complexLooper = Looper(complexOperator)
+    dongLooper = Looper(dongOperator, complexLooper)
 
-    complexList = ComplexListProvider().get_data(gaepodong)
-    print('='*100)
-    print(f'complexList :\n {complexList}')
+    data_generator = dongLooper.handle_request(gu_generator)
+    print(data_generator)
 
-    # dongLooper = Looper(dongList[:2])
-    # complexLooper = Looper(complexList[:2])
+    for i in data_generator:
+        print(i)
+        for k in i :
+            print(k)
     
-    complexNo = '8928'
-    complexArticle = ComplexArticleProvider().get_data(complexNo)
-    print(f'complex - article : {complexArticle}')
+    # complexNo = '8928'
+    # complexArticle = ComplexArticleProvider().get_data(complexNo)
+    # print(f'complex - article : {complexArticle}')
 
-    reverse = {articleNo : complexArticle.complexNo for articleNo in complexArticle.articleNoList}
-    print(reverse)
-    import pandas as pd
-    print(pd.Series(reverse.values(), index=reverse.keys()))
+    # reverse = {articleNo : complexArticle.complexNo for articleNo in complexArticle.articleNoList}
+    # print(reverse)
+    # import pandas as pd
+    # print(pd.Series(reverse.values(), index=reverse.keys()))
 
