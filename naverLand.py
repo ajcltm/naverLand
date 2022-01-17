@@ -29,7 +29,7 @@ class GuListProvider:
 
     def get_generator(self):
         guList = self.get_data()
-        return [guList['regionList'][k]['cortarNo'] for k in [0]]
+        return (guList['regionList'][k]['cortarNo'] for k in [0])
 
 class DongListProvider:
 
@@ -56,10 +56,8 @@ class DongListProvider:
         return r.json()
 
     def get_generator(self, dong):
-        print(dong)
         dongList = self.get_data(dong)
-        print(dongList)
-        return [dongList['regionList'][k]['cortarNo'] for k in [0]]
+        return (dongList['regionList'][k]['cortarNo'] for k in range(len(dongList['regionList'])))
 
 class ComplexListProvider:
 
@@ -86,10 +84,8 @@ class ComplexListProvider:
         return r.json()
 
     def get_generator(self, cortarNo):
-        print(f'cortarNo : {cortarNo}')
-        complexList = self.get_data(cortarNo[0])
-        print(complexList)
-        return [complexList['complexList'][0]['complexNo'] for k in [0]]
+        complexList = self.get_data(cortarNo)
+        return (complexList['complexList'][k]['complexNo'] for k in range(len(complexList['complexList'])))
     
 
 class ArticleListProvider:
@@ -153,6 +149,9 @@ class ComplexArticleProvider:
         data = ComplexArticle(complexNo, articleNoList)
         return data
 
+    def get_generator(self, complexNo):
+        data = self.get_data(complexNo)
+        return (data for k in [0])
 
 class Looper:
 
@@ -162,7 +161,7 @@ class Looper:
 
     def execute(self, generator):
         print('excute')
-        return (self.operator.get_generator(i) for i in generator)
+        return (self.operator.get_generator(i) for sub_generator in generator for i in sub_generator)
     
     def handle_request(self, generator):
         if self.nextLooper :
@@ -396,20 +395,23 @@ if __name__ == '__main__' :
     # article_info = export_target_tag(tag_='세안고').export_article_info()
     # print(article_info)
 
-    gu_generator = GuListProvider().get_generator()
+    gu_generator = (GuListProvider().get_generator() for i in [0])
     print('='*100)
     print(f'GuList :\n {gu_generator}')
 
     dongOperator = DongListProvider()
     complexOperator = ComplexListProvider()
+    complexArticleOperator = ComplexArticleProvider()
 
-    complexLooper = Looper(complexOperator)
+    complexArticleLopper = Looper(complexArticleOperator)
+    complexLooper = Looper(complexOperator, complexArticleLopper)
     dongLooper = Looper(dongOperator, complexLooper)
 
     data_generator = dongLooper.handle_request(gu_generator)
     print(data_generator)
+    
     for k in data_generator:
-        print(k)
+        print(list(k))
     
     # complexNo = '8928'
     # complexArticle = ComplexArticleProvider().get_data(complexNo)
