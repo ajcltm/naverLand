@@ -57,7 +57,8 @@ class DongListProvider:
 
     def get_generator(self, dong):
         dongList = self.get_data(dong)
-        return (dongList['regionList'][k]['cortarNo'] for k in range(len(dongList['regionList'])))
+        # return (dongList['regionList'][0]['cortarNo'] for k in range(len(dongList['regionList'])))
+        return (dongList['regionList'][0]['cortarNo'] for k in [0])
 
 class ComplexListProvider:
 
@@ -85,7 +86,8 @@ class ComplexListProvider:
 
     def get_generator(self, cortarNo):
         complexList = self.get_data(cortarNo)
-        return (complexList['complexList'][k]['complexNo'] for k in range(len(complexList['complexList'])))
+        # return (complexList['complexList'][0]['complexNo'] for k in range(len(complexList['complexList'])))
+        return (complexList['complexList'][0]['complexNo'] for k in [0])
     
 
 class ArticleListProvider:
@@ -112,9 +114,14 @@ class ArticleListProvider:
         r = requests.get(url, headers=headers)
         return r.json()
 
+    def get_generator(self, complexNo):
+        articleList = self.get_data(complexNo)
+        return ((articleList['articleList'][k]['articleNo'], complexNo) for k in range(len(articleList['articleList'])))
+        # return ((articleList['articleList'][0]['articleNo'], complexNo) for k in [0])
+
 class ArticleInfoProvider:
 
-    def get_data(self, articleNo):
+    def get_article_info_data(self, articleNo):
         url = f'https://new.land.naver.com/api/articles/{articleNo}?complexNo='
         headers = {
             'Accept': '*/*',
@@ -135,6 +142,38 @@ class ArticleInfoProvider:
         }
         r = requests.get(url, headers=headers)
         return r.json()
+
+    def get_complex_price_data(self, complexNo):
+        url = f'https://new.land.naver.com/api/complexes/{complexNo}/prices?complexNo={complexNo}&year=5&tradeType=A1&areaNo=1&type=chart'
+        print(url)
+        headers = {
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+            'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IlJFQUxFU1RBVEUiLCJpYXQiOjE2NDI0MzM3MDAsImV4cCI6MTY0MjQ0NDUwMH0.0E_bLezMEZWh-H_YEXWAU3gwjpUiyc-NPS_9Dbx_BRw',
+            'Connection': 'keep-alive',
+            'Host': 'new.land.naver.com',
+            'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="97", "Chromium";v="97"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': "Windows",
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36'
+        }
+        r = requests.get(url, headers=headers)
+        return r.json()
+
+    def get_data(self, tuple):
+        articleNo = tuple[0]
+        complexNo = tuple[1]
+        article_info_data = self.get_article_info_data(articleNo)
+        complex_price_data = self.get_complex_price_data(complexNo)
+        return {'article_info_data':article_info_data, 'complex_price_data':complex_price_data}
+    
+    def get_generator(self, tuple):
+        dic = self.get_data(tuple)
+        return (dic for k in [0])
 
 @dataclass
 class ComplexArticle:
@@ -234,13 +273,19 @@ class ArticleDataClass:
     supplySpace : str
     exclusiveSpace : str
     exclusiveRate : str
+
     tagList : List = field(default_factory=List)
+
+    realPriceDataXList : List = field(default_factory=List)
+    realPriceDataYList : List = field(default_factory=List)
 
 
 class ArticleDataClassTransfier:
 
-    def transfer(self, articleInfo):
-        articleDetail = articleInfo.get('articleDetail')
+    def get_generator(self, articleInfo):
+        articleInfoData = articleInfo.get('article_info_data')
+
+        articleDetail = articleInfoData.get('articleDetail')
         articleNo = articleDetail.get('articleNo')
         articleName = articleDetail.get('articleName')
         exposeStartYMD = articleDetail.get('exposeStartYMD')
@@ -271,10 +316,8 @@ class ArticleDataClassTransfier:
         detailDescription = articleDetail.get('detailDescription')
         floorLayerName = articleDetail.get('floorLayerName')
         tagList = articleDetail.get('tagList')
-
-
         
-        articleAddition = articleInfo['articleAddition']
+        articleAddition = articleInfoData['articleAddition']
         floorInfo = articleAddition.get('floorInfo')
         priceChangeState = articleAddition.get('priceChangeState')
         dealOrWarrantPrc = articleAddition.get('dealOrWarrantPrc')
@@ -282,10 +325,10 @@ class ArticleDataClassTransfier:
         latitude = articleAddition.get('latitude')
         longitude = articleAddition.get('longitude')
 
-        articleFacility = articleInfo['articleFacility']       
+        articleFacility = articleInfoData['articleFacility']       
         entranceTypeName = articleFacility.get('entranceTypeName')
 
-        articlePrice = articleInfo['articlePrice']  
+        articlePrice = articleInfoData['articlePrice']  
         
         rentPrice = articlePrice.get('rentPrice')
         dealPrice = articlePrice.get('dealPrice')
@@ -298,9 +341,8 @@ class ArticleDataClassTransfier:
         priceBySpace = articlePrice.get('priceBySpace')
         bondPrice = articlePrice.get('bondPrice')
         middlePayment = articlePrice.get('middlePayment')
-
         
-        articleRealtor = articleInfo['articleRealtor']  
+        articleRealtor = articleInfoData['articleRealtor']  
     
         realtorName = articleRealtor.get('realtorName')
         representativeName = articleRealtor.get('representativeName')
@@ -308,11 +350,14 @@ class ArticleDataClassTransfier:
         representativeTelNo = articleRealtor.get('representativeTelNo')
         cellPhoneNo = articleRealtor.get('cellPhoneNo')
 
-        articleSpace = articleInfo['articleSpace'] 
+        articleSpace = articleInfoData['articleSpace'] 
         supplySpace = articleSpace.get('supplySpace')
         exclusiveSpace = articleSpace.get('exclusiveSpace')
         exclusiveRate = articleSpace.get('exclusiveRate')
 
+        complex_price_data = articleInfo.get('complex_price_data')
+        realPriceDataXList = complex_price_data.get('realPriceDataXList')
+        realPriceDataYList = complex_price_data.get('realPriceDataYList')
 
 
         data = ArticleDataClass(
@@ -321,40 +366,11 @@ class ArticleDataClassTransfier:
             moveInDiscussionPossibleYN,monthlyManagementCost,monthlyManagementCostIncludeItemName,buildingName,articleFeatureDescription,detailDescription,floorLayerName,
             floorInfo, priceChangeState, dealOrWarrantPrc, direction, latitude, longitude, entranceTypeName, rentPrice, dealPrice, warrantPrice, allWarrantPrice, financePrice, 
             premiumPrice, isalePrice, allRentPrice, priceBySpace, bondPrice, middlePayment, realtorName, representativeName, address, representativeTelNo, cellPhoneNo, supplySpace,
-            exclusiveSpace, exclusiveRate,tagList) 
+            exclusiveSpace, exclusiveRate, tagList, realPriceDataXList, realPriceDataYList) 
             
-        return data
+        return (data for i in [0])
 
 
-class export_target_tag:
-
-    def __init__(self, tag_):
-        self.tag = tag_
-
-    def export_article_info(self):
-        guList = GuListProvider().get_data()['regionList']
-        for k in range(0, len(guList)) :
-            time.sleep(1)
-            gu = guList[k]['cortarNo']
-            dongList = DongListProvider().get_data(gu)['regionList']
-            for i in range(0, len(dongList)):
-                time.sleep(1)
-                dong = dongList[i]['cortarNo']
-                complexList = ComplexListProvider().get_data(dong)['complexList']
-                for z in range(0, len(complexList)):
-                    time.sleep(1)
-                    complexNo = complexList[z]['complexNo']
-                    articleList = ArticleListProvider().get_data(complexNo, 'A1')['articleList']
-                    for w in range(0, len(articleList)):
-                        time.sleep(1)
-                        articleNo = articleList[w]['articleNo']
-                        article_info = ArticleInfoProvider().get_data(articleNo)
-                        keys = list(article_info.keys())
-                        tagList = article_info[keys[0]].get('tagList')
-                        print(tagList)
-                        if self.tag in tagList :
-                            print(article_info)
-                            return article_info
 
 if __name__ == '__main__' :
 
@@ -401,16 +417,21 @@ if __name__ == '__main__' :
 
     dongOperator = DongListProvider()
     complexOperator = ComplexListProvider()
-    complexArticleOperator = ComplexArticleProvider()
+    articleOperator = ArticleListProvider()
+    articleInfoOperator = ArticleInfoProvider()
+    articleDataClassOperator = ArticleDataClassTransfier()
 
-    complexArticleLopper = Looper(complexArticleOperator)
-    complexLooper = Looper(complexOperator, complexArticleLopper)
+    articleDataLooper = Looper(articleDataClassOperator)
+    articleInfoLooper = Looper(articleInfoOperator, articleDataLooper)
+    articleLopper = Looper(articleOperator, articleInfoLooper)
+    complexLooper = Looper(complexOperator, articleLopper)
     dongLooper = Looper(dongOperator, complexLooper)
 
     data_generator = dongLooper.handle_request(gu_generator)
     print(data_generator)
     
     for k in data_generator:
+        print('='*100)
         print(list(k))
     
     # complexNo = '8928'
