@@ -1,7 +1,10 @@
 from dataclasses import dataclass, field, asdict
 from typing import List
+import pandas as pd
 import requests
 import time
+import sqlite3
+from pathlib import Path
 
 class GuListProvider:
 
@@ -29,12 +32,30 @@ class GuListProvider:
 
     def get_generator(self):
         guList = self.get_data()
+        # return (guList['regionList'][k]['cortarNo'] for k in range(0, len(guList['regionList'])))
         return (guList['regionList'][k]['cortarNo'] for k in [0])
+
+    def get_dict_generator(self):
+        guList = self.get_data()
+        guList = [guList['regionList'][k]['cortarNo'] for k in range(0, len(guList['regionList']))]
+        return ({'city' : '1100000000', 'guList' : guList} for k in [0])
+
+class SaverCityGu:
+    def create_df(self, dic):
+        df = pd.DataFrame(dic.get('guList'), columns=['gu'])
+        df = df.assign(city = dic.get('city'))
+        return df
+
+    def save_sql(self, dic):
+        fileDir = Path.cwd() / 'NaverLand' / 'city_gu.db'
+        con = sqlite3.connect(fileDir)
+        df = self.create_df(dic)
+        df.to_sql('city_gu', con, if_exists='append')
 
 class DongListProvider:
 
-    def get_data(self, dong):
-        url = f'https://new.land.naver.com/api/regions/list?cortarNo={dong}'
+    def get_data(self, gu):
+        url = f'https://new.land.naver.com/api/regions/list?cortarNo={gu}'
         headers = {
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -55,15 +76,33 @@ class DongListProvider:
         r = requests.get(url, headers=headers)
         return r.json()
 
-    def get_generator(self, dong):
-        dongList = self.get_data(dong)
-        # return (dongList['regionList'][0]['cortarNo'] for k in range(len(dongList['regionList'])))
+    def get_generator(self, gu):
+        dongList = self.get_data(gu)
         return (dongList['regionList'][0]['cortarNo'] for k in [0])
+        # return (dongList['regionList'][k]['cortarNo'] for k in range(0, len(dongList['regionList'])))
+
+    def get_dict_generator(self, gu):
+        dongList = self.get_data(gu)
+        dongList = [dongList['regionList'][k]['cortarNo'] for k in range(0, len(dongList['regionList']))]
+        return ({'gu' : gu, 'dongList' : dongList} for k in [0])
+
+class SaverGuDong:
+    def create_df(self, dic):
+        df = pd.DataFrame(dic.get('dongList'), columns=['dong'])
+        df = df.assign(gu = dic.get('gu'))
+        return df
+
+    def save_sql(self, dic):
+        fileDir = Path.cwd() / 'NaverLand' / 'gu_dong.db'
+        con = sqlite3.connect(fileDir)
+        df = self.create_df(dic)
+        df.to_sql('gu_dong', con, if_exists='append')
+        print('save!')
 
 class ComplexListProvider:
 
-    def get_data(self, cortarNo):
-        url = f'https://new.land.naver.com/api/regions/complexes?cortarNo={cortarNo}&realEstateType=APT&order='
+    def get_data(self, dong):
+        url = f'https://new.land.naver.com/api/regions/complexes?cortarNo={dong}&realEstateType=APT&order='
         headers = {
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -84,11 +123,77 @@ class ComplexListProvider:
         r = requests.get(url, headers=headers)
         return r.json()
 
-    def get_generator(self, cortarNo):
-        complexList = self.get_data(cortarNo)
+    def get_generator(self, dong):
+        complexList = self.get_data(dong)
         # return (complexList['complexList'][0]['complexNo'] for k in range(len(complexList['complexList'])))
-        return (complexList['complexList'][0]['complexNo'] for k in [0])
-    
+        # return (complexList['complexList'][k]['complexNo'] for k in [0])
+        return (complexList['complexList'][k]['complexNo'] for k in range(10))
+
+    def get_dict_generator(self, dong):
+        complexList = self.get_data(dong)
+        complexList = [complexList['complexList'][k]['complexNo'] for k in range(0, len(complexList['complexList']))]
+        return ({'dong' : dong, 'complexList' : complexList} for k in [0])
+
+class SaverDongComplex:
+    def create_df(self, dic):
+        df = pd.DataFrame(dic.get('complexList'), columns=['complexList'])
+        df = df.assign(dong = dic.get('dong'))
+        return df
+
+    def save_sql(self, dic):
+        fileDir = Path.cwd() / 'NaverLand' / 'dong_complex.db'
+        con = sqlite3.connect(fileDir)
+        df = self.create_df(dic)
+        df.to_sql('dong_complex', con, if_exists='append')
+        print('save!')
+
+class ComplexPriceProvider:
+
+    def get_data(self, complexNo):
+        time.sleep(.5)
+        url = f'https://new.land.naver.com/api/complexes/{complexNo}/prices?complexNo={complexNo}&year=5&tradeType=A1&areaNo=1&type=chart'
+        print(url)
+        headers = {
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+            'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IlJFQUxFU1RBVEUiLCJpYXQiOjE2NDI0MzM3MDAsImV4cCI6MTY0MjQ0NDUwMH0.0E_bLezMEZWh-H_YEXWAU3gwjpUiyc-NPS_9Dbx_BRw',
+            'Connection': 'keep-alive',
+            'Host': 'new.land.naver.com',
+            'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="97", "Chromium";v="97"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': "Windows",
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36'
+        }
+        r = requests.get(url, headers=headers)
+        return r.json()
+
+    def get_generator(self, complexNo):
+        complexPriceInfo = self.get_data(complexNo)
+        return (complexPriceInfo for k in [0])
+
+    def get_dict_generator(self, complexNo):
+        dic = self.get_data(complexNo)
+        realPriceDataXList = dic.get('realPriceDataXList')[1:]
+        realPriceDataYList = dic.get('realPriceDataYList')[1:]
+        return ({'complexNo' : complexNo, 'date' : realPriceDataXList, 'price' : realPriceDataYList} for k in [0])
+
+class SaverComplexPriceInfo:
+    def create_df(self, dic):
+        dic_ = {'date' : dic.get('date'), 'price' : dic.get('price')}
+        df = pd.DataFrame(dic_)
+        df = df.assign(complexNo = dic.get('complexNo'))
+        return df
+
+    def save_sql(self, dic):
+        fileDir = Path.cwd() / 'NaverLand' / 'complex_price_info.db'
+        con = sqlite3.connect(fileDir)
+        df = self.create_df(dic)
+        df.to_sql('complex_price_info', con, if_exists='append')
+        print('save!')
 
 class ArticleListProvider:
 
@@ -143,37 +248,18 @@ class ArticleInfoProvider:
         r = requests.get(url, headers=headers)
         return r.json()
 
-    def get_complex_price_data(self, complexNo):
-        url = f'https://new.land.naver.com/api/complexes/{complexNo}/prices?complexNo={complexNo}&year=5&tradeType=A1&areaNo=1&type=chart'
-        print(url)
-        headers = {
-            'Accept': '*/*',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
-            'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IlJFQUxFU1RBVEUiLCJpYXQiOjE2NDI0MzM3MDAsImV4cCI6MTY0MjQ0NDUwMH0.0E_bLezMEZWh-H_YEXWAU3gwjpUiyc-NPS_9Dbx_BRw',
-            'Connection': 'keep-alive',
-            'Host': 'new.land.naver.com',
-            'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="97", "Chromium";v="97"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': "Windows",
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36'
-        }
-        r = requests.get(url, headers=headers)
-        return r.json()
-
     def get_data(self, tuple):
         articleNo = tuple[0]
         complexNo = tuple[1]
         article_info_data = self.get_article_info_data(articleNo)
-        complex_price_data = self.get_complex_price_data(complexNo)
-        return {'article_info_data':article_info_data, 'complex_price_data':complex_price_data}
+        complexNoDict = {'complexNo' : complexNo}
+        article_info_data.update(complexNoDict)
+        return article_info_data
     
     def get_generator(self, tuple):
         dic = self.get_data(tuple)
         return (dic for k in [0])
+
 
 @dataclass
 class ComplexArticle:
@@ -211,6 +297,41 @@ class Looper:
             print('my lopper!')
             result = self.execute(generator)
             return result
+
+class DictGeneratorLooper:
+
+    def __init__(self, operator, nextLooper=None):
+        self.operator = operator
+        self.nextLooper = nextLooper
+
+    def execute(self, generator):
+        print('excute')
+        return (self.operator.get_dict_generator(i) for sub_generator in generator for i in sub_generator)
+    
+    def handle_request(self, generator):
+        if self.nextLooper :
+            print('next lopper!')
+            result = self.nextLooper.handle_request(self.execute(generator))
+            return result
+        else :
+            print('my lopper!')
+            result = self.execute(generator)
+            return result
+
+class SavingLooper:
+
+    def __init__(self, operator, nextLooper=None):
+        self.operator = operator
+        self.nextLooper = nextLooper
+
+    def execute(self, generator):
+        print('excute')
+        for sub_generator in generator :
+            for i in sub_generator :
+                self.operator.save_sql(i)
+    
+    def handle_request(self, generator):
+        self.execute(generator)
 
 
 @dataclass
@@ -274,18 +395,14 @@ class ArticleDataClass:
     exclusiveSpace : str
     exclusiveRate : str
 
+    complexNo : str
     tagList : List = field(default_factory=List)
-
-    realPriceDataXList : List = field(default_factory=List)
-    realPriceDataYList : List = field(default_factory=List)
 
 
 class ArticleDataClassTransfier:
 
     def get_generator(self, articleInfo):
-        articleInfoData = articleInfo.get('article_info_data')
-
-        articleDetail = articleInfoData.get('articleDetail')
+        articleDetail = articleInfo.get('articleDetail')
         articleNo = articleDetail.get('articleNo')
         articleName = articleDetail.get('articleName')
         exposeStartYMD = articleDetail.get('exposeStartYMD')
@@ -317,7 +434,7 @@ class ArticleDataClassTransfier:
         floorLayerName = articleDetail.get('floorLayerName')
         tagList = articleDetail.get('tagList')
         
-        articleAddition = articleInfoData['articleAddition']
+        articleAddition = articleInfo['articleAddition']
         floorInfo = articleAddition.get('floorInfo')
         priceChangeState = articleAddition.get('priceChangeState')
         dealOrWarrantPrc = articleAddition.get('dealOrWarrantPrc')
@@ -325,10 +442,10 @@ class ArticleDataClassTransfier:
         latitude = articleAddition.get('latitude')
         longitude = articleAddition.get('longitude')
 
-        articleFacility = articleInfoData['articleFacility']       
+        articleFacility = articleInfo['articleFacility']       
         entranceTypeName = articleFacility.get('entranceTypeName')
 
-        articlePrice = articleInfoData['articlePrice']  
+        articlePrice = articleInfo['articlePrice']  
         
         rentPrice = articlePrice.get('rentPrice')
         dealPrice = articlePrice.get('dealPrice')
@@ -342,7 +459,7 @@ class ArticleDataClassTransfier:
         bondPrice = articlePrice.get('bondPrice')
         middlePayment = articlePrice.get('middlePayment')
         
-        articleRealtor = articleInfoData['articleRealtor']  
+        articleRealtor = articleInfo['articleRealtor']  
     
         realtorName = articleRealtor.get('realtorName')
         representativeName = articleRealtor.get('representativeName')
@@ -350,15 +467,12 @@ class ArticleDataClassTransfier:
         representativeTelNo = articleRealtor.get('representativeTelNo')
         cellPhoneNo = articleRealtor.get('cellPhoneNo')
 
-        articleSpace = articleInfoData['articleSpace'] 
+        articleSpace = articleInfo['articleSpace'] 
         supplySpace = articleSpace.get('supplySpace')
         exclusiveSpace = articleSpace.get('exclusiveSpace')
         exclusiveRate = articleSpace.get('exclusiveRate')
 
-        complex_price_data = articleInfo.get('complex_price_data')
-        realPriceDataXList = complex_price_data.get('realPriceDataXList')
-        realPriceDataYList = complex_price_data.get('realPriceDataYList')
-
+        complexNo = articleInfo.get('complexNo')
 
         data = ArticleDataClass(
             articleNo,articleName,exposeStartYMD,exposeEndYMD,articleConfirmYMD,aptName,aptHouseholdCount,aptConstructionCompanyName,aptUseApproveYmd,totalDongCount,realestateTypeCode
@@ -366,8 +480,25 @@ class ArticleDataClassTransfier:
             moveInDiscussionPossibleYN,monthlyManagementCost,monthlyManagementCostIncludeItemName,buildingName,articleFeatureDescription,detailDescription,floorLayerName,
             floorInfo, priceChangeState, dealOrWarrantPrc, direction, latitude, longitude, entranceTypeName, rentPrice, dealPrice, warrantPrice, allWarrantPrice, financePrice, 
             premiumPrice, isalePrice, allRentPrice, priceBySpace, bondPrice, middlePayment, realtorName, representativeName, address, representativeTelNo, cellPhoneNo, supplySpace,
-            exclusiveSpace, exclusiveRate, tagList, realPriceDataXList, realPriceDataYList) 
+            exclusiveSpace, exclusiveRate, complexNo, tagList) 
             
+        return (data for i in [0])
+
+
+@dataclass
+class ComplexPriceDataclass :
+    date : List = field(default_factory=List)
+    price : List = field(default_factory=List)
+
+
+class ComplexPriceDataclassTransfier:
+
+    def get_generator(self, complexPriceInfo) :
+        realPriceDataXList = complexPriceInfo.get('realPriceDataXList')[1:]
+        realPriceDataYList = complexPriceInfo.get('realPriceDataYList')[1:]
+        
+        data = ComplexPriceDataclass(realPriceDataXList, realPriceDataYList)
+
         return (data for i in [0])
 
 
@@ -412,28 +543,42 @@ if __name__ == '__main__' :
     # print(article_info)
 
     gu_generator = (GuListProvider().get_generator() for i in [0])
-    print('='*100)
-    print(f'GuList :\n {gu_generator}')
 
     dongOperator = DongListProvider()
     complexOperator = ComplexListProvider()
-    articleOperator = ArticleListProvider()
-    articleInfoOperator = ArticleInfoProvider()
-    articleDataClassOperator = ArticleDataClassTransfier()
+    complexPriceOperator = ComplexPriceProvider()
+    saverGuDong = SaverGuDong()
+    saverDongComplex = SaverDongComplex()
+    saverComplexPriceInfo = SaverComplexPriceInfo()
 
-    articleDataLooper = Looper(articleDataClassOperator)
-    articleInfoLooper = Looper(articleInfoOperator, articleDataLooper)
-    articleLopper = Looper(articleOperator, articleInfoLooper)
-    complexLooper = Looper(complexOperator, articleLopper)
+    # articleOperator = ArticleListProvider()
+    # articleInfoOperator = ArticleInfoProvider()
+    # articleDataClassOperator = ArticleDataClassTransfier()
+
+    # articleDataLooper = Looper(articleDataClassOperator)
+    # articleInfoLooper = Looper(articleInfoOperator, articleDataLooper)
+    # articleLopper = Looper(articleOperator, articleInfoLooper)
+    # complexLooper = Looper(complexOperator, articleLopper)
+    # dongLooper = Looper(dongOperator, complexLooper)
+
+    # data_generator = dongLooper.handle_request(gu_generator)
+    # print(data_generator)
+    savingLooper = SavingLooper(saverComplexPriceInfo)
+    complexPriceLooper = DictGeneratorLooper(complexPriceOperator, savingLooper)
+    complexLooper = Looper(complexOperator, complexPriceLooper)    
     dongLooper = Looper(dongOperator, complexLooper)
-
     data_generator = dongLooper.handle_request(gu_generator)
-    print(data_generator)
+
+    # data_generator = (ComplexPriceProvider().get_generator('8928') for k in [0])
+
+    # for k in data_generator:
+    #     print('='*100)
+    #     dic = list(k)[0]
+    #     print(dic.get('realPriceDataXList'), dic.get('realPriceDataYList'))
     
-    for k in data_generator:
-        print('='*100)
-        print(list(k))
-    
+    fileDir = Path.cwd() / 'NaverLand' / 'complex_price_info.db'
+    con = sqlite3.connect(fileDir)
+    print(pd.read_sql('SELECT * FROM complex_price_info', con, index_col=None))
     # complexNo = '8928'
     # complexArticle = ComplexArticleProvider().get_data(complexNo)
     # print(f'complex - article : {complexArticle}')
