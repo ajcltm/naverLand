@@ -6,6 +6,12 @@ import time
 import sqlite3
 from pathlib import Path
 
+@dataclass
+class GuDC:
+    idNo : str
+    name : str
+    city : str
+
 class GuListProvider:
 
     def get_data(self):
@@ -31,19 +37,17 @@ class GuListProvider:
         return r.json()
 
     def get_generator(self):
-        guList = self.get_data()
-        # return (guList['regionList'][k]['cortarNo'] for k in range(0, len(guList['regionList'])))
-        return (guList['regionList'][k]['cortarNo'] for k in [0])
+        data = self.get_data()
+        guNoList = [data['regionList'][k]['cortarNo'] for k in range(0, len(data['regionList']))]
+        guNameList = [data['regionList'][k]['cortarName'] for k in range(0, len(data['regionList']))]
+        generator = (GuDC(**{'idNo':guNoList[k], 'name':guNameList[k], 'city':'1100000000'}) for k in range(0, len(data['regionList'])))
+        return generator
 
-    def get_dict_generator(self):
-        guList = self.get_data()
-        guList = [guList['regionList'][k]['cortarNo'] for k in range(0, len(guList['regionList']))]
-        return ({'city' : '1100000000', 'guList' : guList} for k in [0])
 
-class SaverCityGu:
+class GuSaver:
     def create_df(self, dic):
-        df = pd.DataFrame(dic.get('guList'), columns=['gu'])
-        df = df.assign(city = dic.get('city'))
+        print(dic)
+        df = pd.DataFrame([dic])
         return df
 
     def save_sql(self, dic):
@@ -51,6 +55,15 @@ class SaverCityGu:
         con = sqlite3.connect(fileDir)
         df = self.create_df(dic)
         df.to_sql('city_gu', con, if_exists='append')
+
+@dataclass
+class DongDC:
+    idNo : str
+    name : str
+    gu : str
+
+
+
 
 class DongListProvider:
 
@@ -77,19 +90,17 @@ class DongListProvider:
         return r.json()
 
     def get_generator(self, gu):
-        dongList = self.get_data(gu)
-        return (dongList['regionList'][0]['cortarNo'] for k in [0])
-        # return (dongList['regionList'][k]['cortarNo'] for k in range(0, len(dongList['regionList'])))
+        data = self.get_data(gu)
+        dongNoList = [data['regionList'][k]['cortarNo'] for k in range(0, len(data['regionList']))]
+        dongNameList = [data['regionList'][k]['cortarName'] for k in range(0, len(data['regionList']))]
+        generator = (DongDC(**{'idNo':dongNoList[k], 'name':dongNameList[k], 'gu': gu}) for k in range(0, len(data['regionList'])))
+        return generator
 
-    def get_dict_generator(self, gu):
-        dongList = self.get_data(gu)
-        dongList = [dongList['regionList'][k]['cortarNo'] for k in range(0, len(dongList['regionList']))]
-        return ({'gu' : gu, 'dongList' : dongList} for k in [0])
 
-class SaverGuDong:
+class DongSaver:
     def create_df(self, dic):
-        df = pd.DataFrame(dic.get('dongList'), columns=['dong'])
-        df = df.assign(gu = dic.get('gu'))
+        print(dic)
+        df = pd.DataFrame([dic])
         return df
 
     def save_sql(self, dic):
@@ -286,7 +297,7 @@ class Looper:
 
     def execute(self, generator):
         print('excute')
-        return (self.operator.get_generator(i) for sub_generator in generator for i in sub_generator)
+        return (self.operator.get_generator(i.idNo) for sub_generator in generator for i in sub_generator)
     
     def handle_request(self, generator):
         if self.nextLooper :
@@ -542,14 +553,14 @@ if __name__ == '__main__' :
     # article_info = export_target_tag(tag_='세안고').export_article_info()
     # print(article_info)
 
-    gu_generator = (GuListProvider().get_generator() for i in [0])
+    # gu_generator = (GuListProvider().get_generator() for i in [0])
 
-    dongOperator = DongListProvider()
-    complexOperator = ComplexListProvider()
-    complexPriceOperator = ComplexPriceProvider()
-    saverGuDong = SaverGuDong()
-    saverDongComplex = SaverDongComplex()
-    saverComplexPriceInfo = SaverComplexPriceInfo()
+    # dongOperator = DongListProvider()
+    # complexOperator = ComplexListProvider()
+    # complexPriceOperator = ComplexPriceProvider()
+    # saverGuDong = SaverGuDong()
+    # saverDongComplex = SaverDongComplex()
+    # saverComplexPriceInfo = SaverComplexPriceInfo()
 
     # articleOperator = ArticleListProvider()
     # articleInfoOperator = ArticleInfoProvider()
@@ -563,11 +574,11 @@ if __name__ == '__main__' :
 
     # data_generator = dongLooper.handle_request(gu_generator)
     # print(data_generator)
-    savingLooper = SavingLooper(saverComplexPriceInfo)
-    complexPriceLooper = DictGeneratorLooper(complexPriceOperator, savingLooper)
-    complexLooper = Looper(complexOperator, complexPriceLooper)    
-    dongLooper = Looper(dongOperator, complexLooper)
-    data_generator = dongLooper.handle_request(gu_generator)
+    # savingLooper = SavingLooper(saverComplexPriceInfo)
+    # complexPriceLooper = DictGeneratorLooper(complexPriceOperator, savingLooper)
+    # complexLooper = Looper(complexOperator, complexPriceLooper)    
+    # dongLooper = Looper(dongOperator, complexLooper)
+    # data_generator = dongLooper.handle_request(gu_generator)
 
     # data_generator = (ComplexPriceProvider().get_generator('8928') for k in [0])
 
@@ -576,9 +587,7 @@ if __name__ == '__main__' :
     #     dic = list(k)[0]
     #     print(dic.get('realPriceDataXList'), dic.get('realPriceDataYList'))
     
-    fileDir = Path.cwd() / 'NaverLand' / 'complex_price_info.db'
-    con = sqlite3.connect(fileDir)
-    print(pd.read_sql('SELECT * FROM complex_price_info', con, index_col=None))
+
     # complexNo = '8928'
     # complexArticle = ComplexArticleProvider().get_data(complexNo)
     # print(f'complex - article : {complexArticle}')
@@ -587,4 +596,21 @@ if __name__ == '__main__' :
     # print(reverse)
     # import pandas as pd
     # print(pd.Series(reverse.values(), index=reverse.keys()))
+
+
+    # glp = GuListProvider()
+    # dl = DongListProvider()
+    # invoker = (glp.get_generator() for k in [0])
+    
+    # gs = GuSaver()
+    # ds = DongSaver()
+    # sl = SavingLooper(ds)
+    # l = Looper(dl, sl)
+    # l.handle_request(invoker)
+
+
+    fileDir = Path.cwd() / 'NaverLand' / 'gu_dong.db'
+    con = sqlite3.connect(fileDir)
+    print(pd.read_sql('SELECT * FROM gu_dong', con, index_col=None))
+
 
