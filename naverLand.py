@@ -1,10 +1,5 @@
-from dataclasses import dataclass, field, asdict
-from typing import List
 from collections import namedtuple
 import pandas as pd
-import requests
-import time
-import sqlite3
 from pathlib import Path
 
 import dataProvider
@@ -57,16 +52,6 @@ class create_dong_complex_db :
 class create_complex_price_db :
 
     def excute(self):
-        # gu_gen = gp.get_generator()
-        # gu_gen_gen = (gu_gen for k in [0])
-
-        # saver = saveLoad.ComplexPriceSaver()
-
-        # save_looper = forLooper.SavingLooper(saver)
-        # complex_price_looper = forLooper.idLooper(cpp, save_looper)
-        # complex_looper = forLooper.idLooper(cp, complex_price_looper)
-        # dp_looper = forLooper.idLooper(dp, complex_looper)
-        # dp_looper.handle_request(gu_gen_gen)
 
         df = saveLoad.SqlLoader().load('map', 'dong_complex')
         complexlst = df.idNo.unique().tolist()
@@ -84,6 +69,7 @@ class create_complex_article_db :
     def excute(self):
         df = saveLoad.SqlLoader().load('map', 'dong_complex')
         complexlst = df.idNo.unique().tolist()
+        complexlst = complexlst[complexlst.index('108038')+1:]
         nt = namedtuple('nt', ['idNo']) 
         print(nt(complexlst[0]))
         complex_gen = (nt(k) for k in complexlst)
@@ -94,13 +80,34 @@ class create_complex_article_db :
         article_looper = forLooper.idLooper(ap, save_looper)
         article_looper.handle_request(complex_gen_gen)
 
+
+class create_article_info_db :
+
+    def excute(self):
+        df = saveLoad.SqlLoader().load('map', 'complex_article')
+        articlelst = df.idNo.unique().tolist()
+        nt = namedtuple('nt', ['idNo']) 
+        article_gen = (nt(k) for k in articlelst)
+        article_gen_gen = (article_gen for k in [0])
+
+        saver = saveLoad.ArticleInfoSaver()
+        save_looper = forLooper.SavingLooper(saver)
+        article_looper = forLooper.idLooper(aip, save_looper)
+        article_looper.handle_request(article_gen_gen)
+
 if __name__ == '__main__' :
     
     # create_city_gu_db().excute()
     # create_gu_dong_db().excute()
     # create_dong_complex_db().excute()
+    create_complex_article_db().excute()
+
     # create_complex_price_db().excute()
-    # create_complex_article_db().excute()
     df = saveLoad.SqlLoader().load('map', 'complex_article')
-    print(df)
+    
+    print(df.loc[df.idNo.isnull()])
+    print(df.iloc[17618:])
+
+    # data = ap.get_data('8928')
+    # print(data)
 

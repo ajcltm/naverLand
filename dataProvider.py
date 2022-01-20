@@ -1,7 +1,8 @@
 import requests
 import time
-
+import random
 import dataclass
+
 
 class GuDataProvider:
 
@@ -25,10 +26,16 @@ class GuDataProvider:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
         }
         r = requests.get(url, headers=headers)
-        return r.json()
+        try: 
+            data = r.json()
+        except :
+            data = None
+        return data
 
     def get_generator(self):
         data = self.get_data()
+        if data == None :
+            return (dataclass.GuDC(**{'idNo':None, 'name':None, 'cityNo':'1100000000'}) for k in [0])
         guNoList = [data['regionList'][k]['cortarNo'] for k in range(0, len(data['regionList']))]
         guNameList = [data['regionList'][k]['cortarName'] for k in range(0, len(data['regionList']))]
         generator = (dataclass.GuDC(**{'idNo':guNoList[k], 'name':guNameList[k], 'cityNo':'1100000000'}) for k in range(0, len(data['regionList'])))
@@ -57,10 +64,17 @@ class DongDataProvider:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
         }
         r = requests.get(url, headers=headers)
-        return r.json()
+        try: 
+            data = r.json()
+        except :
+            print(f'{gu} : json failed')
+            data = None
+        return data
 
     def get_generator(self, gu):
         data = self.get_data(gu)
+        if data == None :
+            return (dataclass.DongDC(**{'idNo':None, 'name':None, 'guNo': gu}) for k in [0])
         dongNoList = [data['regionList'][k]['cortarNo'] for k in range(0, len(data['regionList']))]
         dongNameList = [data['regionList'][k]['cortarName'] for k in range(0, len(data['regionList']))]
         generator = (dataclass.DongDC(**{'idNo':dongNoList[k], 'name':dongNameList[k], 'guNo': gu}) for k in range(0, len(data['regionList'])))
@@ -89,10 +103,21 @@ class ComplexDataProvider:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
         }
         r = requests.get(url, headers=headers)
-        return r.json()
+        try: 
+            data = r.json()
+        except :
+            print(f'{dong} : json failed')
+            data = None
+        return data
     
     def get_generator(self, dong):
         data = self.get_data(dong)
+        if data == None:
+            keys = ['idNo', 'name', 'dongNo', 'realEstateTypeCode', 'cortarAddress', 'detailAddress', 
+                    'totalHouseholdCount', 'totalBuildingCount', 'highFloor', 'lowFloor', 'useApproveYmd']
+            dic = {key : None for key in keys}
+            return (dataclass.ComplexDC(**dic) for k in [0])
+        print(f'{dong} : dongNo')
         complexNoList = [data['complexList'][k].get('complexNo') for k in range(0, len(data['complexList']))]
         complexNameList = [data['complexList'][k].get('complexName') for k in range(0, len(data['complexList']))]
         typeCodeList = [data['complexList'][k].get('realEstateTypeCode') for k in range(0, len(data['complexList']))]
@@ -138,10 +163,17 @@ class ComplexPriceDataProvider:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36'
         }
         r = requests.get(url, headers=headers)
-        return r.json()
+        try: 
+            data = r.json()
+        except :
+            print(f'{complexNo} : json failed')
+            data = None
+        return data
 
     def get_generator(self, complexNo):
         data = self.get_data(complexNo)
+        if data == None:
+            return (dataclass.ComplexPriceDC(**{'idNo':None, 'date':None, 'price':None}) for k in [0])
         date = data.get('realPriceDataXList')[1:]
         price = data.get('realPriceDataYList')[1:]
 
@@ -151,6 +183,7 @@ class ComplexPriceDataProvider:
 class ArticleDataProvider:
 
     def get_data(self, complexNo, tradeType='A1'):            #tradeType  A1: 매매, B1: 전세
+        time.sleep(.2)
         url = f'https://new.land.naver.com/api/articles/complex/{complexNo}?realEstateType=APT&tradeType={tradeType}&tag=%3A%3A%3A%3A%3A%3A%3A%3A&rentPriceMin=0&rentPriceMax=900000000&priceMin=0&priceMax=900000000&areaMin=0&areaMax=900000000&oldBuildYears&recentlyBuildYears&minHouseHoldCount&maxHouseHoldCount&showArticle=false&sameAddressGroup=false&minMaintenanceCost&maxMaintenanceCost&priceType=RETAIL&directions=&page=1&complexNo={complexNo}&buildingNos=&areaNos=&type=list&order=rank'
         headers = {
             'Accept': '*/*',
@@ -170,11 +203,20 @@ class ArticleDataProvider:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
         }
         r = requests.get(url, headers=headers)
-        return r.json()
+        try: 
+            data = r.json()
+        except :
+            print(f'{complexNo} : json failed')
+            data = None
+        return data
 
     def get_generator(self, complexNo):
         data = self.get_data(complexNo)
+        if data == None:
+            return (dataclass.ArticleDC(**{'idNo':None, 'name':None, 'complexNo':None}) for k in [0])
         dataList = data.get('articleList')
+        if dataList == None:
+            return (dataclass.ArticleDC(**{'idNo':None, 'name':None, 'complexNo':None}) for k in [0])
         articleNoList = [dataList[k]['articleNo'] for k in range(0, len(dataList))]
         articleNameList = [dataList[k]['articleName'] for k in range(0, len(dataList))]
         return (dataclass.ArticleDC(**{'idNo':articleNoList[k], 'name':articleNameList[k], 'complexNo': complexNo}) for k in range(len(dataList)))
@@ -202,37 +244,42 @@ class ArticleInfoDataProvider:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
         }
         r = requests.get(url, headers=headers)
-        return r.json()
+        try: 
+            data = r.json()
+        except :
+            print(f'{articleNo} : json failed')
+            data = None
+        return data
     
     def get_generator(self, articleNo):
-        data = self.get_data(articleNo)
-
-        ad = data.get('articleDetail')
         ad_keys = ['articleNo', 'articleName', 'exposeStartYMD','exposeEndYMD','articleConfirmYMD','aptName','aptHouseholdCount','aptConstructionCompanyName','aptUseApproveYmd',
         'totalDongCount', 'realestateTypeCode', 'tradeTypeName', 'verificationTypeCode', 'cityName', 'divisionName', 'sectionName', 'householdCountByPtp',
         'walkingTimeToNearSubway', 'detailAddress', 'roomCount', 'bathroomCount', 'moveInTypeCode', 'moveInDiscussionPossibleYN', 'monthlyManagementCost', 'monthlyManagementCostIncludeItemName',
         'buildingName', 'articleFeatureDescription', 'detailDescription', 'floorLayerName']
-        ad_dict = {k : ad.get(k) for k in ad_keys}
-
-        aa = data.get('articleFacility')
         aa_keys = ['floorInfo', 'priceChangeState', 'dealOrWarrantPrc','direction','latitude','longitude']
-        aa_dict = {k : aa.get(k) for k in aa_keys}
-        
-        af = data.get('articleAddition')
         af_keys = ['entranceTypeName']
-        af_dict = {k : af.get(k) for k in af_keys}
-
-        
-        ap = data.get('articlePrice')
         ap_keys = ['rentPrice', 'dealPrice', 'warrantPrice', 'allWarrantPrice', 'financePrice',
         'premiumPrice', 'isalePrice', 'allRentPrice', 'priceBySpace', 'bondPrice', 'middlePayment']
-        ap_dict = {k : ap.get(k) for k in ap_keys}
-
-        ar = data.get('articleRealtor')
         ar_keys = ['realtorName', 'representativeName', 'address','representativeTelNo','cellPhoneNo', 'supplySpace', 'exclusiveSpace', 'exclusiveRate']
-        ar_dict = {k : ar.get(k) for k in ar_keys}
-
         adt_keys = ['tagList']
+
+        data = self.get_data(articleNo)
+
+        if data == None:
+            keys = ad_keys + aa_keys + af_keys + ap_keys + ar_keys + adt_keys
+            dic = {key : None for key in keys}
+            return (dataclass.ArticleInfoDC(**dic) for k in [0])
+
+        ad = data.get('articleDetail')
+        ad_dict = {k : ad.get(k) for k in ad_keys}
+        aa = data.get('articleFacility')
+        aa_dict = {k : aa.get(k) for k in aa_keys}
+        af = data.get('articleAddition')
+        af_dict = {k : af.get(k) for k in af_keys}
+        ap = data.get('articlePrice')
+        ap_dict = {k : ap.get(k) for k in ap_keys}
+        ar = data.get('articleRealtor')
+        ar_dict = {k : ar.get(k) for k in ar_keys}
         adt_dict = {k : ad.get(k) for k in adt_keys}
 
         final_dict = dict(ad_dict, **aa_dict, **af_dict, **ap_dict, **ar_dict, **adt_dict)
