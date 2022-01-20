@@ -3,10 +3,20 @@ import time
 import random
 import dataclass
 
+class RandomSleep:
+
+    def sleep(self):
+        range_option = {'quicker': [0, .5], 'slower': [.5, 2], 'stop': [10, 15]}
+        sleepLevel = random.choices(['quicker', 'slower', 'stop'], weights=[.6, .39, .01])
+        range = range_option.get(sleepLevel[0])
+        if sleepLevel[0] == 'stop' : print('Now taking a rest in a seconds')
+        time.sleep(random.uniform(range[0], range[1]))
 
 class GuDataProvider:
 
     def get_data(self):
+
+        RandomSleep().sleep()
         url = 'https://new.land.naver.com/api/regions/list?cortarNo=1100000000'
         headers = {
             'Accept': '*/*',
@@ -45,6 +55,8 @@ class GuDataProvider:
 class DongDataProvider:
 
     def get_data(self, gu):
+
+        RandomSleep().sleep()
         url = f'https://new.land.naver.com/api/regions/list?cortarNo={gu}'
         headers = {
             'Accept': '*/*',
@@ -84,6 +96,8 @@ class DongDataProvider:
 class ComplexDataProvider:
 
     def get_data(self, dong):
+
+        RandomSleep().sleep()
         url = f'https://new.land.naver.com/api/regions/complexes?cortarNo={dong}&realEstateType=APT&order='
         headers = {
             'Accept': '*/*',
@@ -146,6 +160,8 @@ class ComplexDataProvider:
 class ComplexPriceDataProvider:
 
     def get_data(self, complexNo):
+
+        RandomSleep().sleep()
         url = f'https://new.land.naver.com/api/complexes/{complexNo}/prices?complexNo={complexNo}&year=5&tradeType=A1&areaNo=1&type=chart'
         headers = {
             'Accept': '*/*',
@@ -183,7 +199,8 @@ class ComplexPriceDataProvider:
 class ArticleDataProvider:
 
     def get_data(self, complexNo, tradeType='A1'):            #tradeType  A1: 매매, B1: 전세
-        time.sleep(.2)
+        
+        RandomSleep().sleep()
         url = f'https://new.land.naver.com/api/articles/complex/{complexNo}?realEstateType=APT&tradeType={tradeType}&tag=%3A%3A%3A%3A%3A%3A%3A%3A&rentPriceMin=0&rentPriceMax=900000000&priceMin=0&priceMax=900000000&areaMin=0&areaMax=900000000&oldBuildYears&recentlyBuildYears&minHouseHoldCount&maxHouseHoldCount&showArticle=false&sameAddressGroup=false&minMaintenanceCost&maxMaintenanceCost&priceType=RETAIL&directions=&page=1&complexNo={complexNo}&buildingNos=&areaNos=&type=list&order=rank'
         headers = {
             'Accept': '*/*',
@@ -225,6 +242,8 @@ class ArticleDataProvider:
 class ArticleInfoDataProvider:
 
     def get_data(self, articleNo):
+
+        RandomSleep().sleep()
         url = f'https://new.land.naver.com/api/articles/{articleNo}?complexNo='
         headers = {
             'Accept': '*/*',
@@ -271,16 +290,37 @@ class ArticleInfoDataProvider:
             return (dataclass.ArticleInfoDC(**dic) for k in [0])
 
         ad = data.get('articleDetail')
-        ad_dict = {k : ad.get(k) for k in ad_keys}
-        aa = data.get('articleFacility')
-        aa_dict = {k : aa.get(k) for k in aa_keys}
-        af = data.get('articleAddition')
-        af_dict = {k : af.get(k) for k in af_keys}
-        ap = data.get('articlePrice')
-        ap_dict = {k : ap.get(k) for k in ap_keys}
-        ar = data.get('articleRealtor')
-        ar_dict = {k : ar.get(k) for k in ar_keys}
-        adt_dict = {k : ad.get(k) for k in adt_keys}
+        if ad == None:
+            ad_dict = {k : None for k in ad_keys}
+            adt_dict_ = {k : None for k in adt_keys}
+        else :
+            ad_dict = {k : ad.get(k) for k in ad_keys}
+            adt_dict = {k : ad.get(k) for k in adt_keys}
+            adt_dict_ = {item[0] : " ".join(item[1]) for item in adt_dict.items()} 
 
-        final_dict = dict(ad_dict, **aa_dict, **af_dict, **ap_dict, **ar_dict, **adt_dict)
+        aa = data.get('articleFacility')
+        if aa == None:
+            aa_dict = {k : None for k in aa_keys}
+        else :  
+            aa_dict = {k : aa.get(k) for k in aa_keys}
+
+        af = data.get('articleAddition')
+        if af == None:
+            af_dict = {k : None for k in af_keys}
+        else :
+            af_dict = {k : af.get(k) for k in af_keys}
+
+        ap = data.get('articlePrice')
+        if ap == None:
+            ap_dict = {k : None for k in ap_keys}
+        else :
+            ap_dict = {k : ap.get(k) for k in ap_keys}
+
+        ar = data.get('articleRealtor')
+        if ar == None:
+            ar_dict = {k : None for k in ar_keys}
+        else :
+            ar_dict = {k : ar.get(k) for k in ar_keys}
+
+        final_dict = dict(ad_dict, **aa_dict, **af_dict, **ap_dict, **ar_dict, **adt_dict_)
         return (dataclass.ArticleInfoDC(**final_dict) for k in [0])

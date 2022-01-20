@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import List
+import saveLoad
 
 @dataclass
 class GuDC:
@@ -8,12 +9,50 @@ class GuDC:
     name : str
     cityNo : str
 
+@dataclass
+class GuDCs:
+    data : list() = field(default_factory=list)
+
+    def __post_init__(self):
+        df = saveLoad.SqlLoader().load('map', 'city_gu')
+        df_to_dict = df.to_dict('records')
+        self.data = [GuDC(**dic) for dic in df_to_dict]
+
+    def get_by_idNo(self, idNo):
+        return [dc for dc in self.data if dc.idNo == idNo]
+
+    def get_by_name(self, name):
+        return [dc for dc in self.data if dc.name == name]
+    
+    def get_by_cityNo(self, cityNo):
+        return [dc for dc in self.data if dc.cityNo == cityNo]
+        
+
 
 @dataclass
 class DongDC:
     idNo : str
     name : str
     guNo : str
+
+
+@dataclass
+class DongDCs:
+    data : list() = field(default_factory=list)
+
+    def __post_init__(self):
+        df = saveLoad.SqlLoader().load('map', 'gu_dong')
+        df_to_dict = df.to_dict('records')
+        self.data = [DongDC(**dic) for dic in df_to_dict]
+
+    def get_by_idNo(self, idNo):
+        return [dc for dc in self.data if dc.idNo == idNo]
+
+    def get_by_name(self, name):
+        return [dc for dc in self.data if dc.name == name]
+    
+    def get_by_guNo(self, guNo):
+        return [dc for dc in self.data if dc.guNo == guNo]
 
 
 @dataclass
@@ -30,6 +69,24 @@ class ComplexDC:
     lowFloor : int
     useApproveYmd : str
 
+
+@dataclass
+class ComplexDCs:
+    data : list() = field(default_factory=list)
+
+    def __post_init__(self):
+        df = saveLoad.SqlLoader().load('map', 'dong_complex')
+        df_to_dict = df.to_dict('records')
+        self.data = [ComplexDC(**dic) for dic in df_to_dict]
+
+    def get_by_idNo(self, idNo):
+        return [dc for dc in self.data if dc.idNo == idNo]
+
+    def get_by_name(self, name):
+        return [dc for dc in self.data if dc.name == name]
+    
+    def get_by_dongNo(self, dongNo):
+        return [dc for dc in self.data if dc.dongNo == dongNo]
 
 
 @dataclass
@@ -105,4 +162,5 @@ class ArticleInfoDC:
     exclusiveSpace : str
     exclusiveRate : str
 
-    tagList : List = field(default_factory=List)
+    # tagList : List = field(default_factory=List)
+    tagList : str

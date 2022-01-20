@@ -4,6 +4,7 @@ import pandas as pd
 
 class GuSaver:
     def create_df(self, dc):
+        print(dc)
         df = pd.DataFrame([dc])
         return df
 
@@ -15,7 +16,9 @@ class GuSaver:
 
 
 class DongSaver:
+
     def create_df(self, dc):
+        print(dc)
         df = pd.DataFrame([dc])
         return df
 
@@ -63,6 +66,18 @@ class ArticleSaver:
         con = sqlite3.connect(fileDir)
         df = self.create_df(dc)
         df.to_sql('complex_article', con, index=False, if_exists='append')
+
+class ArticleInfoSaver:
+    def create_df(self, dc):
+        print(dc)
+        df = pd.DataFrame([dc])
+        return df
+
+    def save_sql(self, dc):
+        fileDir = Path.cwd() / 'naverLand' / 'articleInfo.db'
+        con = sqlite3.connect(fileDir)
+        df = self.create_df(dc)
+        df.to_sql('articleInfo', con, index=False, if_exists='append')
 
 class SqlLoader:
 
