@@ -193,7 +193,7 @@ class ComplexPriceDataProvider:
         date = data.get('realPriceDataXList')[1:]
         price = data.get('realPriceDataYList')[1:]
 
-        return (dataclass.ComplexPriceDC(**{'idNo':complexNo, 'date':date, 'price':price}) for k in [0])
+        return (dataclass.ComplexPriceDC(**{'idNo':complexNo, 'pct_change':None, 'date':date, 'price':price}) for k in [0])
 
 
 class ArticleDataProvider:
@@ -298,13 +298,13 @@ class ArticleInfoDataProvider:
             adt_dict = {k : ad.get(k) for k in adt_keys}
             adt_dict_ = {item[0] : " ".join(item[1]) for item in adt_dict.items()} 
 
-        aa = data.get('articleFacility')
+        aa = data.get('articleAddition')
         if aa == None:
             aa_dict = {k : None for k in aa_keys}
         else :  
             aa_dict = {k : aa.get(k) for k in aa_keys}
 
-        af = data.get('articleAddition')
+        af = data.get('articleFacility')
         if af == None:
             af_dict = {k : None for k in af_keys}
         else :
