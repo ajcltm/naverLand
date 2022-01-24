@@ -14,10 +14,10 @@ class RandomSleep:
 
 class GuDataProvider:
 
-    def get_data(self):
+    def get_data(self, city):
 
         RandomSleep().sleep()
-        url = 'https://new.land.naver.com/api/regions/list?cortarNo=1100000000'
+        url = f'https://new.land.naver.com/api/regions/list?cortarNo={city}'
         headers = {
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -42,8 +42,8 @@ class GuDataProvider:
             data = None
         return data
 
-    def get_generator(self):
-        data = self.get_data()
+    def get_generator(self, city):
+        data = self.get_data(city)
         if data == None :
             return (dataclass.GuDC(**{'idNo':None, 'name':None, 'cityNo':'1100000000'}) for k in [0])
         guNoList = [data['regionList'][k]['cortarNo'] for k in range(0, len(data['regionList']))]

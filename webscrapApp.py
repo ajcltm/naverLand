@@ -18,7 +18,7 @@ time = datetime.now().strftime('%Y%m%d-%H%M%S')
 class Create_city_gu_db :
 
     def excute(self):
-        gu_gen = gp.get_generator()
+        gu_gen = gp.get_generator('4100000000')
         gu_gen_gen = (gu_gen for k in [0])
 
         saver = saveLoad.GuSaver(f'naverLand({time})', f'city_gu')
@@ -29,7 +29,7 @@ class Create_city_gu_db :
 class Create_gu_dong_db :
 
     def excute(self):
-        gu_gen = gp.get_generator()
+        gu_gen = gp.get_generator('4100000000')
         gu_gen_gen = (gu_gen for k in [0])
 
         saver = saveLoad.DongSaver(f'naverLand({time})', f'gu_dong')
@@ -41,7 +41,7 @@ class Create_gu_dong_db :
 class Create_dong_complex_db :
 
     def excute(self):
-        gu_gen = gp.get_generator()
+        gu_gen = gp.get_generator('4100000000')
         gu_gen_gen = (gu_gen for k in [0])
 
         saver = saveLoad.ComplexSaver(f'naverLand({time})', f'dong_complex')
@@ -55,8 +55,7 @@ class Create_dong_complex_db :
 class Create_complex_article_db :
 
     def excute(self):
-        time_ = '20220122-180119'
-        df = saveLoad.SqlLoader().load(f'naverLand({time_})', f'dong_complex')
+        df = saveLoad.SqlLoader().load(f'naverLand({time})', f'dong_complex')
         complexlst = df.idNo.unique().tolist()
 
         nt = namedtuple('nt', ['idNo']) 
@@ -73,8 +72,7 @@ class Create_complex_article_db :
 class Create_article_info_db :
 
     def excute(self):
-        time_ = '20220122-180119'
-        df = saveLoad.SqlLoader().load(f'naverLand({time_})', f'complex_article')
+        df = saveLoad.SqlLoader().load(f'naverLand({time})', f'complex_article')
         articlelst = df.idNo.unique().tolist()
         nt = namedtuple('nt', ['idNo']) 
         article_gen = (nt(k) for k in articlelst)
@@ -104,14 +102,13 @@ class Create_complex_price_db :
 
 def main() :
 
-    # Create_city_gu_db().excute()
-    # Create_gu_dong_db().excute()
-    # Create_dong_complex_db().excute()
+    Create_city_gu_db().excute()
+    Create_gu_dong_db().excute()
+    Create_dong_complex_db().excute()
     Create_complex_article_db().excute()
     Create_article_info_db().excute()
 
     Create_complex_price_db().excute()
-
 
 if __name__ == '__main__' :
 
