@@ -4,13 +4,13 @@ from datetime import datetime
 from typing import List
 import saveLoad
 
+time = '20220122-181419'
+
 @dataclass
 class GuDC:
     idNo : str
     name : str
     cityNo : str
-
-time = '20220122-180119'
 
 @dataclass
 class GuDCs:

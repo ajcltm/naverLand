@@ -129,6 +129,7 @@ class bakcUp:
 class SqlLoader:
 
     def load(self, fileName, tableName):
+        print(fileName, tableName)
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         con = sqlite3.connect(fileDir)
         df = pd.read_sql(f'SELECT * FROM {tableName}', con, index_col=None)

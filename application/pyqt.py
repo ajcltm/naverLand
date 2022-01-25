@@ -3,6 +3,9 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import QPalette, QColor
 from PyQt6.QtCore import Qt
 
+sys.path.append('C:/Users/ajcltm/PycharmProjects/naverLand')
+import dataclass
+
 
 class MainWindow(QWidget):
 
@@ -48,30 +51,30 @@ class MainWindow(QWidget):
         self.setLayout(self.layout)
     
     def set_tab1(self):
+        dcs = dataclass.ComplexDCs()
 
-        self.tab1.setColumnCount(4)
-        self.tab1.setRowCount(5)
+        self.tab1.setColumnCount(6)
+        self.tab1.setRowCount(len(dcs.data))
         # self.tab1.setStyleSheet("::item {background-color : #f1f2f3;}")
         # self.tab1.setStyleSheet("::section{background-color : #194350;" "color:white;" "border-style : solid;"}")
 
-        cols = ['col1', 'col2', 'col3', 'col4']
+        cols = ['name', 'address', 'type', 'count', 'hFloor', 'Ymd']
         for tuple in enumerate(cols):
             item = QTableWidgetItem(tuple[1])
-            item.setBackground(1)
             self.tab1.setHorizontalHeaderItem(tuple[0], item)
         # self.tab1.setHorizontalHeaderLabels()
         self.tab1.horizontalHeaderItem(0).setToolTip('''It's something...''')
         # self.tab1.horizontalHeaderItem(0).setTextAlignment(4) # 0:left 1:left 2:right 3:right 4:centre
-        # self.tab1.horizontalHeader().setStyleSheet("::section{background-color : #194350;" "color:white;" "border-style : solid;}")
-
-        
+        self.tab1.horizontalHeader().setStyleSheet("::section{background-color : #194350;" "color:white;" "border-style : solid;}")
 
         QComboBox_lst = [QComboBox() for i in range(len(cols))]
-        QComboBox_element_dict = {'col1' : ['a', 'b', 'c', 'd'],
-                                    'col2' : ['e', 'f', 'g', 'h'],
-                                    'col3' : ['i', 'f', 'k', 'l'],
-                                    'col4' : ['n', 'm', 'o', 'p'],
-                                } 
+        QComboBox_element_dict = {'name' : list(set([dc.name for dc in dcs.data])),
+                                    'address' : list(set([dc.cortarAddress for dc in dcs.data])),
+                                    'type' : list(set([dc.realEstateTypeCode for dc in dcs.data])),
+                                    'count' : list(set([str(dc.totalHouseholdCount) for dc in dcs.data])),
+                                    'hFloor' : list(set([str(dc.highFloor) for dc in dcs.data])),
+                                    'Ymd' : list(set([dc.useApproveYmd for dc in dcs.data]))
+                                }
         for tuple in enumerate(cols):
             QComboBox_lst[tuple[0]].addItems(QComboBox_element_dict.get(tuple[1]))
             self.tab1.setCellWidget(0, tuple[0], QComboBox_lst[tuple[0]])
@@ -79,6 +82,13 @@ class MainWindow(QWidget):
         for tuple in enumerate(cols): 
             self.tab1.setCellWidget(1, tuple[0], QLineEdit())
 
+        for tuple in enumerate(dcs.data) :
+            self.tab1.setItem(tuple[0]+2, 0, QTableWidgetItem(tuple[1].name))
+            self.tab1.setItem(tuple[0]+2, 1, QTableWidgetItem(tuple[1].cortarAddress))
+            self.tab1.setItem(tuple[0]+2, 2, QTableWidgetItem(tuple[1].realEstateTypeCode))
+            self.tab1.setItem(tuple[0]+2, 3, QTableWidgetItem(str(tuple[1].totalHouseholdCount)))
+            self.tab1.setItem(tuple[0]+2, 4, QTableWidgetItem(str(tuple[1].highFloor)))
+            self.tab1.setItem(tuple[0]+2, 5, QTableWidgetItem(tuple[1].useApproveYmd))
 
         
 if __name__ == '__main__':
