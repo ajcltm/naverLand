@@ -51,6 +51,8 @@ class MainWindow(QWidget):
 
         self.tab1.setColumnCount(4)
         self.tab1.setRowCount(5)
+        # self.tab1.setStyleSheet("::item {background-color : #f1f2f3;}")
+        # self.tab1.setStyleSheet("::section{background-color : #194350;" "color:white;" "border-style : solid;"}")
 
         cols = ['col1', 'col2', 'col3', 'col4']
         for tuple in enumerate(cols):
@@ -59,7 +61,10 @@ class MainWindow(QWidget):
             self.tab1.setHorizontalHeaderItem(tuple[0], item)
         # self.tab1.setHorizontalHeaderLabels()
         self.tab1.horizontalHeaderItem(0).setToolTip('''It's something...''')
-        self.tab1.horizontalHeaderItem(0).setTextAlignment(4) # 0:left 1:left 2:right 3:right 4:centre
+        # self.tab1.horizontalHeaderItem(0).setTextAlignment(4) # 0:left 1:left 2:right 3:right 4:centre
+        # self.tab1.horizontalHeader().setStyleSheet("::section{background-color : #194350;" "color:white;" "border-style : solid;}")
+
+        
 
         QComboBox_lst = [QComboBox() for i in range(len(cols))]
         QComboBox_element_dict = {'col1' : ['a', 'b', 'c', 'd'],
