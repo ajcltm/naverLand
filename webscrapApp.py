@@ -107,17 +107,13 @@ class Create_complex_price_db :
 
 def main() :
 
-    # Create_city_gu_db().excute()
-    # Create_gu_dong_db().excute()
-    # Create_dong_complex_db().excute()
-    # Create_complex_article_db().excute()
-    # Create_article_info_db().excute()
+    Create_city_gu_db().excute()
+    Create_gu_dong_db().excute()
+    Create_dong_complex_db().excute()
+    Create_complex_article_db().excute()
+    Create_article_info_db().excute()
 
-    # Create_complex_price_db().excute()
-
-    import dataclass
-    data = dataclass.ComplexDCs()
-    print(data)
+    Create_complex_price_db().excute()
 
 
 
