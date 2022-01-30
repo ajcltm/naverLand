@@ -246,3 +246,14 @@ class ComplexPriceDCs :
         df_to_dict = ({'idNo':key, 'date':date_dict.get(key), 'price':price_dict.get(key), 'pct_change' : pct_dict.get(key)
                         } for key in date_dict.keys())
         self.data = [ComplexPriceDC(**dic) for dic in df_to_dict]
+
+
+if __name__=='__main__':
+    import time
+
+    start = time.time()
+    dcs = ArticleInfoDCs()
+    end = time.time()
+    
+    print(f'dcs loading : {end - start} seconds')
+

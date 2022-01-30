@@ -5,20 +5,14 @@ from PyQt6.QtCore import Qt
 
 sys.path.append('C:/Users/ajcltm/PycharmProjects/naverLand')
 import dataclass
+import sqlQuery
 
 
 class MainWindow(QWidget):
 
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.complexKeys = [dc.idNo for dc in dataclass.ComplexDCs().data]
-        self.articleKeys = [dc.idNo for dc in dataclass.ArticleDCs().data]
-        self.guDCs = dataclass.GuDCs()
-        self.dongDCs = dataclass.DongDCs()
-        self.complexDCs = dataclass.ComplexDCs()
-        self.articleDCs = dataclass.ArticleDCs()
-        self.articleInfoDCs = dataclass.ArticleInfoDCs()
-        print(self.articleInfoDCs.data[0])
+        self.tab1_data = sqlQuery.Init_tab1_table().get_data()
 
         self.setupUI()
 
@@ -29,7 +23,7 @@ class MainWindow(QWidget):
 
         self.tab1 = QTableWidget()
         self.tab1.resize(400, 500)
-        self.set_tab1()
+        # self.set_tab1()
         self.tab2 = QTableWidget()
         self.tab2.resize(400, 500)
         self.set_tab2()
@@ -61,69 +55,62 @@ class MainWindow(QWidget):
 
         self.setLayout(self.layout)
     
-    def set_tab1(self):
+    # def set_tab1(self):
 
-        dcs = [dc for dc in self.complexDCs.data if dc.idNo in self.complexKeys]
+    #     dcs = [dc for dc in self.complexDCs.data if dc.idNo in self.complexKeys]
         
-        cols = ['complexNo', 'name', 'address', 'type', 'count', 'hFloor', 'Ymd']
+    #     cols = ['complexNo', 'name', 'address', 'type', 'count', 'hFloor', 'Ymd']
 
-        self.tab1.setColumnCount(len(cols))
-        self.tab1.setRowCount(len(self.complexKeys))
+    #     self.tab1.setColumnCount(len(cols))
+    #     self.tab1.setRowCount(len(self.complexKeys))
         
-        self.tab1.setHorizontalHeaderLabels(cols)
-        self.tab1.horizontalHeader().setStyleSheet("::section{background-color : #194350;" "color:white;" "border-style : solid;}")
+    #     self.tab1.setHorizontalHeaderLabels(cols)
+    #     self.tab1.horizontalHeader().setStyleSheet("::section{background-color : #194350;" "color:white;" "border-style : solid;}")
 
-        # create line Editers
-        for tuple in enumerate(cols): 
-            self.tab1.setCellWidget(0, tuple[0], QLineEdit())
+    #     # create line Editers
+    #     for tuple in enumerate(cols): 
+    #         self.tab1.setCellWidget(0, tuple[0], QLineEdit())
 
-        # create table data
-        for tuple in enumerate(dcs) :  # rows
-            self.tab1.setItem(tuple[0]+1, 0, QTableWidgetItem(self.complexKeys[tuple[0]]))
-            self.tab1.setItem(tuple[0]+1, 1, QTableWidgetItem(tuple[1].name))
-            self.tab1.setItem(tuple[0]+1, 2, QTableWidgetItem(tuple[1].cortarAddress +' '+ tuple[1].detailAddress))
-            self.tab1.setItem(tuple[0]+1, 3, QTableWidgetItem(tuple[1].realEstateTypeCode))
-            self.tab1.setItem(tuple[0]+1, 4, QTableWidgetItem(str(tuple[1].totalHouseholdCount)))
-            self.tab1.setItem(tuple[0]+1, 5, QTableWidgetItem(str(tuple[1].highFloor)))
-            self.tab1.setItem(tuple[0]+1, 6, QTableWidgetItem(tuple[1].useApproveYmd))
+    #     # create table data
+    #     for tuple in enumerate(dcs) :  # rows
+    #         self.tab1.setItem(tuple[0]+1, 0, QTableWidgetItem(self.complexKeys[tuple[0]]))
+    #         self.tab1.setItem(tuple[0]+1, 1, QTableWidgetItem(tuple[1].name))
+    #         self.tab1.setItem(tuple[0]+1, 2, QTableWidgetItem(tuple[1].cortarAddress +' '+ tuple[1].detailAddress))
+    #         self.tab1.setItem(tuple[0]+1, 3, QTableWidgetItem(tuple[1].realEstateTypeCode))
+    #         self.tab1.setItem(tuple[0]+1, 4, QTableWidgetItem(str(tuple[1].totalHouseholdCount)))
+    #         self.tab1.setItem(tuple[0]+1, 5, QTableWidgetItem(str(tuple[1].highFloor)))
+    #         self.tab1.setItem(tuple[0]+1, 6, QTableWidgetItem(tuple[1].useApproveYmd))
 
     def set_tab2(self):
         
-        dcs = [dc for dc in self.articleInfoDCs.data if dc.articleNo in self.articleKeys]
+        data = self.tab1_data
 
-        cols = ['articleNo', 'name', 'address', 'type', 'price', 'warrPrice','hHcount','Ymd', 'tradeType']
-
+        cols = ['cityNo', 'city', 'dong', 'complex','articleNo', 'articleName', 'estateType', 'ApproveYmd', 'dealPrice', 'warrantPrice','hhCount','exposeYMD', 'tradeTypeName',]
         self.tab2.setColumnCount(len(cols))
-        self.tab2.setRowCount(len(self.articleKeys))
+        self.tab2.setRowCount(len(data))
         
         self.tab2.setHorizontalHeaderLabels(cols)
-        self.tab2.horizontalHeader().setStyleSheet("::section{background-color : #194350;" "color:white;" "border-style : solid;}")
+        self.tab2.horizontalHeader().setStyleSheet("::section{background-color : #05111b;" "color:white;" "border-style : solid;}")
 
         # create line Editers
         for tuple in enumerate(cols): 
             self.tab2.setCellWidget(0, tuple[0], QLineEdit())
 
         # create table data
-        for tuple in enumerate(dcs) :  # rows
-            self.tab2.setItem(tuple[0]+1, 0, QTableWidgetItem(self.articleKeys[tuple[0]]))
-            self.tab2.setItem(tuple[0]+1, 1, QTableWidgetItem(tuple[1].articleName))
-
-            complexNo = self.articleDCs.get_by_idNo(tuple[1].articleNo)[0].complexNo
-            complexDC = self.complexDCs.get_by_idNo(complexNo)
-            if complexDC :
-                self.tab2.setItem(tuple[0]+1, 2, QTableWidgetItem(complexDC[0].cortarAddress +' '+ complexDC[0].detailAddress))
-            else :
-                print(tuple[1].articleNo)
-                self.tab2.setItem(tuple[0]+1, 2, QTableWidgetItem("-"))
-
-            self.tab2.setItem(tuple[0]+1, 3, QTableWidgetItem(tuple[1].realestateTypeCode))
-            self.tab2.setItem(tuple[0]+1, 4, QTableWidgetItem(tuple[1].dealOrWarrantPrc))
-            self.tab2.setItem(tuple[0]+1, 5, QTableWidgetItem(str(tuple[1].warrantPrice)))
-            self.tab2.setItem(tuple[0]+1, 6, QTableWidgetItem(str(tuple[1].householdCountByPtp)))
-            self.tab2.setItem(tuple[0]+1, 7, QTableWidgetItem(tuple[1].exposeStartYMD.strftime(format='%Y%m%d')))
-            self.tab2.setItem(tuple[0]+1, 8, QTableWidgetItem(tuple[1].tradeTypeName))
-
-
+        for tuple in enumerate(data) :  # rows
+            self.tab2.setItem(tuple[0]+1, 0, QTableWidgetItem(tuple[1].get('cityNo')))
+            self.tab2.setItem(tuple[0]+1, 1, QTableWidgetItem(tuple[1].get('city')))
+            self.tab2.setItem(tuple[0]+1, 2, QTableWidgetItem(tuple[1].get('dong')))
+            self.tab2.setItem(tuple[0]+1, 3, QTableWidgetItem(tuple[1].get('complex')))
+            self.tab2.setItem(tuple[0]+1, 4, QTableWidgetItem(tuple[1].get('articelNo')))
+            self.tab2.setItem(tuple[0]+1, 5, QTableWidgetItem(tuple[1].get('articleName')))
+            self.tab2.setItem(tuple[0]+1, 6, QTableWidgetItem(tuple[1].get('realestateTypeCode')))
+            self.tab2.setItem(tuple[0]+1, 7, QTableWidgetItem(tuple[1].get('aptUseApproveYmd')))
+            self.tab2.setItem(tuple[0]+1, 8, QTableWidgetItem(tuple[1].get('dealPrice')))
+            self.tab2.setItem(tuple[0]+1, 9, QTableWidgetItem(tuple[1].get('warrantPrice')))
+            self.tab2.setItem(tuple[0]+1, 10, QTableWidgetItem(tuple[1].get('householdCountByPtp')))
+            self.tab2.setItem(tuple[0]+1, 11, QTableWidgetItem(tuple[1].get('exposeStartYMD')))
+            self.tab2.setItem(tuple[0]+1, 12, QTableWidgetItem(tuple[1].get('tradeTypeName')))
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -131,3 +118,37 @@ if __name__ == '__main__':
     myWindow.show()
 
     app.exec()
+    # import time
+    # start = time.time()
+    # dcs = dataclass.ArticleInfoDCs().data
+
+    # end = time.time()
+    
+    # print(f'dcs loading : {end - start} seconds')
+
+    # start = time.time()
+    # arDcs = dataclass.ArticleDCs().data
+    # end = time.time()
+
+    # print(f'arDcs loading : {end - start}')
+
+    # start = time.time()
+    # articleKeys = [dc.idNo for dc in arDcs]
+    # end = time.time()
+
+    # print(f'articleKeys loading : {end - start}')
+
+    # start = time.time()
+    # article_filtered = [dc for dc in dcs if dc.articleNo in articleKeys]
+
+    # end = time.time()
+
+    # print(f'filted loading : {end - start}')
+
+
+    # start = time.time()
+    # article_filtered = [dc for dc in dcs if dc.articleNo == articleKeys[10000]]
+
+    # end = time.time()
+
+    # print(f'filted loading 2 : {end - start}')
