@@ -1,18 +1,23 @@
+import sqlite3
 import sys
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import QPalette, QColor
-from PyQt6.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtCore import Qt
 
 sys.path.append('C:/Users/ajcltm/PycharmProjects/naverLand')
 import dataclass
 import sqlQuery
+import cellLineEdit
+import whereClause
 
 
 class MainWindow(QWidget):
 
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.tab1_data = sqlQuery.Init_tab1_table().get_data()
+        self.tab1_init_data = sqlQuery.Tab1_table().get_data()
+        self.tab1_data = self.tab1_init_data
+        self.where = whereClause.tab1_WhereHandler().set_where_dict()
 
         self.setupUI()
 
@@ -23,10 +28,10 @@ class MainWindow(QWidget):
 
         self.tab1 = QTableWidget()
         self.tab1.resize(400, 500)
-        # self.set_tab1()
+        self.set_tab1()
         self.tab2 = QTableWidget()
         self.tab2.resize(400, 500)
-        self.set_tab2()
+        # self.set_tab2()
 
         self.tabs1.addTab(self.tab1, 'table1')
         self.tabs1.addTab(self.tab2, 'table2')
@@ -81,37 +86,134 @@ class MainWindow(QWidget):
     #         self.tab1.setItem(tuple[0]+1, 5, QTableWidgetItem(str(tuple[1].highFloor)))
     #         self.tab1.setItem(tuple[0]+1, 6, QTableWidgetItem(tuple[1].useApproveYmd))
 
-    def set_tab2(self):
+    def set_tab1(self):
         
-        data = self.tab1_data
-
         cols = ['cityNo', 'city', 'dong', 'complex','articleNo', 'articleName', 'estateType', 'ApproveYmd', 'dealPrice', 'warrantPrice','hhCount','exposeYMD', 'tradeTypeName',]
-        self.tab2.setColumnCount(len(cols))
-        self.tab2.setRowCount(len(data))
+        self.tab1.setColumnCount(len(cols))
+        self.tab1.setRowCount(len(self.tab1_data))
         
-        self.tab2.setHorizontalHeaderLabels(cols)
-        self.tab2.horizontalHeader().setStyleSheet("::section{background-color : #05111b;" "color:white;" "border-style : solid;}")
-
-        # create line Editers
-        for tuple in enumerate(cols): 
-            self.tab2.setCellWidget(0, tuple[0], QLineEdit())
+        self.tab1.setHorizontalHeaderLabels(cols)
+        self.tab1.horizontalHeader().setStyleSheet("::section{background-color : #05111b;" "color:white;" "border-style : solid;}")
 
         # create table data
-        for tuple in enumerate(data) :  # rows
-            self.tab2.setItem(tuple[0]+1, 0, QTableWidgetItem(tuple[1].get('cityNo')))
-            self.tab2.setItem(tuple[0]+1, 1, QTableWidgetItem(tuple[1].get('city')))
-            self.tab2.setItem(tuple[0]+1, 2, QTableWidgetItem(tuple[1].get('dong')))
-            self.tab2.setItem(tuple[0]+1, 3, QTableWidgetItem(tuple[1].get('complex')))
-            self.tab2.setItem(tuple[0]+1, 4, QTableWidgetItem(tuple[1].get('articelNo')))
-            self.tab2.setItem(tuple[0]+1, 5, QTableWidgetItem(tuple[1].get('articleName')))
-            self.tab2.setItem(tuple[0]+1, 6, QTableWidgetItem(tuple[1].get('realestateTypeCode')))
-            self.tab2.setItem(tuple[0]+1, 7, QTableWidgetItem(tuple[1].get('aptUseApproveYmd')))
-            self.tab2.setItem(tuple[0]+1, 8, QTableWidgetItem(tuple[1].get('dealPrice')))
-            self.tab2.setItem(tuple[0]+1, 9, QTableWidgetItem(tuple[1].get('warrantPrice')))
-            self.tab2.setItem(tuple[0]+1, 10, QTableWidgetItem(tuple[1].get('householdCountByPtp')))
-            self.tab2.setItem(tuple[0]+1, 11, QTableWidgetItem(tuple[1].get('exposeStartYMD')))
-            self.tab2.setItem(tuple[0]+1, 12, QTableWidgetItem(tuple[1].get('tradeTypeName')))
+
+        self.set_tab1_contents()
+
+        # create line Editers
+    
+        self.set_cell_lineEdit()
+    
+    def set_tab1_contents(self):
+        self.tab1.setRowCount(len(self.tab1_data)+1)
+        db_cols = ['cityNo', 'gu', 'dong', 'complex', 'articleNo', 'articleName',
+                    'realestateTypeCode', 'aptUseApproveYmd', 'dealPrice',
+                    'wrrantPrice', 'householdCountByPtp', 'exposeStartYMD',
+                    'tradeTypeName']
+        for row_tuple in enumerate(self.tab1_data) :  # rows
+            for col_tuple in enumerate(db_cols) : #cols
+                self.tab1.setItem(row_tuple[0]+1, col_tuple[0], QTableWidgetItem(str(row_tuple[1].get(col_tuple[1]))))
+
+        self.tab1.setEditTriggers(QTableWidget.NoEditTriggers)
+
+    def set_tab1_contents_test(self):
         
+        db_cols = ['cityNo', 'gu', 'dong', 'complex', 'articleNo', 'articleName',
+                    'realestateTypeCode', 'aptUseApproveYmd', 'dealPrice',
+                    'wrrantPrice', 'householdCountByPtp', 'exposeStartYMD',
+                    'tradeTypeName']
+        data = [{key: 'a' for key in db_cols}]
+        print(f'test_data : {data}')
+        self.tab1.setRowCount(len(data)+1)
+        for row_tuple in enumerate(data) :  # rows
+            for col_tuple in enumerate(db_cols) : #cols
+                self.tab1.setItem(row_tuple[0]+1, col_tuple[0], QTableWidgetItem(str(row_tuple[1].get(col_tuple[1]))))
+
+        self.tab1.setEditTriggers(QTableWidget.NoEditTriggers)
+
+    def set_cell_lineEdit(self):
+        self.cityNo_le = QLineEdit()
+        self.tab1.setCellWidget(0, 0, self.cityNo_le)
+
+        self.gu_le = QLineEdit()
+        self.tab1.setCellWidget(0, 1, self.gu_le)
+
+        self.dong_le = QLineEdit()
+        self.tab1.setCellWidget(0, 2, self.dong_le)
+
+        self.complex_le = QLineEdit()
+        self.tab1.setCellWidget(0, 3, self.complex_le)
+
+        self.articleNo_le = QLineEdit()
+        self.tab1.setCellWidget(0, 4, self.articleNo_le)
+        # self.articleNo_le.textChanged.connect(self.cellLineEditClicked)
+        self.articleNo_le.returnPressed.connect(self.articleNo_cellLineEditClicked)
+
+        self.articleName_le = QLineEdit()
+        self.tab1.setCellWidget(0, 5, self.articleName_le)
+        self.articleName_le.returnPressed.connect(self.articleName_cellLineEditClicked)
+
+        self.estateType_le = QLineEdit()
+        self.tab1.setCellWidget(0, 6, self.estateType_le)
+
+        self.aptUseYMD_le = QLineEdit()
+        self.tab1.setCellWidget(0, 7, self.aptUseYMD_le)
+
+        self.dealPrice_le = QLineEdit()
+        self.tab1.setCellWidget(0, 8, self.dealPrice_le)
+
+        self.wrrantPrice_le = QLineEdit()
+        self.tab1.setCellWidget(0, 9, self.wrrantPrice_le)
+
+        self.hhCount_le = QLineEdit()
+        self.tab1.setCellWidget(0, 10, self.hhCount_le)
+
+        self.exposeStartYMD_le = QLineEdit()
+        self.tab1.setCellWidget(0, 11, self.exposeStartYMD_le)
+
+        self.tradeTypeName_le = QLineEdit()
+        self.tab1.setCellWidget(0, 12, self.tradeTypeName_le)
+    
+    def articleNo_cellLineEditClicked(self):
+        text = self.articleNo_le.text()
+        target_col = 'article_info.articleNo'
+        if len(text) > 0 :
+            where_content = whereClause.tab1_WhereHandler().handle_comma(text, target_col)
+        else :
+            where_content = None
+
+        dic = self.where
+        dic['articleNo'] = where_content
+        self.where = dic
+        print('='*100, self.where, sep='\n')
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
+        print('='*100, f'where_clause : {where_clause}', sep='\n')
+        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+
+        self.set_tab1_contents()
+
+    def articleName_cellLineEditClicked(self):
+        text = self.articleName_le.text()
+        target_col = 'article_info.articleName'
+        if len(text) > 0 :
+            where_content = whereClause.tab1_WhereHandler().handle_comma(text, target_col)
+        else :
+            where_content = None
+
+        dic = self.where
+        dic['articleName'] = where_content
+        self.where = dic
+        print('='*100, self.where, sep='\n')
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
+        print('='*100, f'where_clause : {where_clause}', sep='\n')
+        print(f'where_clause : {where_clause}')
+        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+    
+        self.set_tab1_contents()
+
+        
+
+        
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     myWindow = MainWindow()
