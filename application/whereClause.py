@@ -5,7 +5,6 @@ import pandas as pd
 import re
 
 class tab1_WhereHandler:
-
     
     def set_where_dict(self):
         db_cols = ['cityNo', 'gu', 'dong', 'complex', 'articleNo', 'articleName',
@@ -40,6 +39,21 @@ class tab1_WhereHandler:
         print(where)
 
         return where
+
+
+class label_WhereHandler:
+
+    def get_where_clause(self, articleNo):
+        where = f'''where articleNo = {articleNo}'''
+        return where
+
+
+class tab4_WhereHandler:
+
+    def get_where_clause(self, complexNo):
+        where = f'''where idNo = {complexNo}'''
+        return where
+
 
 if __name__ == '__main__':
     target_col = 'article_info.articleNo'
