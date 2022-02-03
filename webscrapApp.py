@@ -84,7 +84,8 @@ class Create_article_info_db :
         article_gen = (nt(k) for k in articlelst)
         article_gen_gen = (article_gen for k in [0])
 
-        saver = saveLoad.ArticleInfoSaver(f'naverLand({time_})', f'article_info')
+        time = '20220203-122200'
+        saver = saveLoad.ArticleInfoSaver(f'naverLand({time})', f'article_info')
         save_looper = forLooper.SavingLooper(saver)
         article_looper = forLooper.idLooper(aip, save_looper)
         article_looper.handle_request(article_gen_gen)
@@ -107,13 +108,13 @@ class Create_complex_price_db :
 
 def main() :
 
-    Create_city_gu_db().excute()
-    Create_gu_dong_db().excute()
-    Create_dong_complex_db().excute()
-    Create_complex_article_db().excute()
+    # Create_city_gu_db().excute()
+    # Create_gu_dong_db().excute()
+    # Create_dong_complex_db().excute()
+    # Create_complex_article_db().excute()
     Create_article_info_db().excute()
 
-    Create_complex_price_db().excute()
+    # Create_complex_price_db().excute()
 
 
 

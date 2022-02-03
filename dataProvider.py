@@ -279,7 +279,8 @@ class ArticleInfoDataProvider:
         af_keys = ['entranceTypeName']
         ap_keys = ['rentPrice', 'dealPrice', 'warrantPrice', 'allWarrantPrice', 'financePrice',
         'premiumPrice', 'isalePrice', 'allRentPrice', 'priceBySpace', 'bondPrice', 'middlePayment']
-        ar_keys = ['realtorName', 'representativeName', 'address','representativeTelNo','cellPhoneNo', 'supplySpace', 'exclusiveSpace', 'exclusiveRate']
+        ar_keys = ['realtorName', 'representativeName', 'address','representativeTelNo','cellPhoneNo']
+        asp_keys = ['supplySpace', 'exclusiveSpace', 'exclusiveRate']
         adt_keys = ['tagList']
 
         data = self.get_data(articleNo)
@@ -322,5 +323,20 @@ class ArticleInfoDataProvider:
         else :
             ar_dict = {k : ar.get(k) for k in ar_keys}
 
-        final_dict = dict(ad_dict, **aa_dict, **af_dict, **ap_dict, **ar_dict, **adt_dict_)
+        asp = data.get('articleSpace')
+        if asp == None:
+            asp_dict = {k : None for k in asp_keys}
+        else :
+            asp_dict = {k : asp.get(k) for k in asp_keys}
+
+        final_dict = dict(ad_dict, **aa_dict, **af_dict, **ap_dict, **ar_dict, **asp_dict, **adt_dict_)
         return (dataclass.ArticleInfoDC(**final_dict) for k in [0])
+
+if __name__ == '__main__':
+
+    data = ArticleInfoDataProvider().get_data('2201917900').get('articleSpace')
+    print('='*100, f'data : \n{data}', sep='=\n')
+
+    gen = ArticleInfoDataProvider().get_generator('2201917900')
+    for i in gen:
+        print('='*100, f'gen : \n{i}', sep='=\n')

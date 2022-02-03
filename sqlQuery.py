@@ -12,7 +12,7 @@ def regexp(expr, item):
 class Tab1_table:
 
     def get_data(self, where=None):
-        time_str = '(20220122-181419)'
+        time_str = '(20220124-080642)'
         fileName = f'naverLand{time_str}'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print(fileDir)
@@ -42,8 +42,8 @@ class Tab1_table:
                         select c.*, max(c.price)\
                         from (\
                             SELECT a.*\
-                            from complex_price as a\
-                            join (select complex_price.idNo, max(complex_price.date) as date from complex_price group by complex_price.idNo) b\
+                            from complex_price_info as a\
+                            join (select complex_price_info.idNo, max(complex_price_info.date) as date from complex_price_info group by complex_price_info.idNo) b\
                             on a.idNO = b.idNo and a.date = b.date) as c\
                             group by c.idNO\
                         ) as v on v.idNo = complex_article.complexNo'
@@ -72,7 +72,7 @@ class Tab1_table:
 class label:
 
     def get_data(self, where=None):
-        time_str = '(20220122-181419)'
+        time_str = '(20220124-080642)'
         fileName = f'naverLand{time_str}'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print(fileDir)
@@ -119,7 +119,7 @@ class label:
 class Tab4_table:
 
     def get_data(self, where=None):
-        time_str = '(20220122-181419)'
+        time_str = '(20220124-080642)'
         fileName = f'naverLand{time_str}'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print(fileDir)

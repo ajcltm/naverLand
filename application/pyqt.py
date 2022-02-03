@@ -4,10 +4,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtCore import Qt
 
-sys.path.append('C:/Users/ajcltm/PycharmProjects/naverLand')
+sys.path.append('C:/Users/user/PycharmProjects/naverLand')
 import dataclass
 import sqlQuery
-import cellLineEdit
 import whereClause
 
 
@@ -18,7 +17,7 @@ class MainWindow(QWidget):
         self.tab1_init_data = sqlQuery.Tab1_table().get_data()
         self.tab1_data = self.tab1_init_data
         self.where = whereClause.tab1_WhereHandler().set_where_dict()
-        self.label_data = None
+        self.label_data = {}
         self.tab4_data = None
 
         self.setupUI()
@@ -39,8 +38,10 @@ class MainWindow(QWidget):
         self.tabs1.addTab(self.tab2, 'table2')
 
         self.set_mainGroupBox()
-        self.set_detailGroupBox()
-        self.set_brokerGroupBox()
+        self.set_mainGroupBox_label()
+        self.set_mainGroupBox_layout()
+        # self.set_detailGroupBox()
+        # self.set_brokerGroupBox()
 
         self.tabs2 = QTabWidget()
         self.tab3 = QTableWidget()
@@ -54,8 +55,8 @@ class MainWindow(QWidget):
         self.rightLayout = QVBoxLayout()
         self.rightLayout.addSpacing(24)
         self.rightLayout.addWidget(self.mainGroupBox)
-        self.rightLayout.addWidget(self.detailGroupBox)
-        self.rightLayout.addWidget(self.brokerGroupBox)
+        # self.rightLayout.addWidget(self.detailGroupBox)
+        # self.rightLayout.addWidget(self.brokerGroupBox)
         self.rightLayout.addWidget(self.tabs2)
         
         self.layout = QHBoxLayout()
@@ -105,10 +106,10 @@ class MainWindow(QWidget):
 
         where = whereClause.label_WhereHandler().get_where_clause(articleNo)
 
-        self.label_data = sqlQuery.label().get_data(where=where)
-        self.set_mainGroupBox()
-        self.set_detailGroupBox()
-        self.set_brokerGroupBox()
+        self.label_data = sqlQuery.label().get_data(where=where)[0]
+        self.update_mainGroupBox_label()
+        # self.set_detailGroupBox()
+        # self.set_brokerGroupBox()
 
         complexNo = self.tab1_data[row].get('complexNo')
         print('='*100, f'row : {complexNo}', sep='\n')
@@ -204,44 +205,42 @@ class MainWindow(QWidget):
 
 
     def set_mainGroupBox(self):
-        if self.label_data == None:
-            label_data = {}
-        else : 
-            label_data = self.label_data[0]
+        print('='*100, f'label_Data : \n{self.label_data}', sep='\n')
 
         self.mainGroupBox = QGroupBox('Main Information')
+    
+    def set_mainGroupBox_layout(self):
+
         labelVBox = QVBoxLayout()
-        
-        labelLst = [
-                [('article name', 'articleName'), ('contruct firm', 'aptConstructionCompanyName')],
-                [('address', 'fullAddress')],
-                [('deal price', 'dealPrice'), ('real price', 'price')],
-                [('all warrant price', 'allWarrantPrice'), ('finance price', 'financePrice')],
-                [('supply space', 'supplySpace'), ('exclusive space', 'exclusiveSpace')],
-                [('exclusive rate', 'exclusiveRate'), ('finance price', 'financePrice')],
-                [('dong count', 'totalDongCount'), ('house count', 'aptHouseholdCount')],
-                [('floor info', 'floorInfo'), ('entrance type', 'entranceTypeName')]
-                ]
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_1)
+        labelHBox.addWidget(self.ql_2)
+        labelVBox.addLayout(labelHBox)
 
-        for row in labelLst:
-            labeHBox = QHBoxLayout()
-            if len(row)>1:
-                for label in row:
-                    print(f'{label[0]} : {label_data.get(label[1])}')
-                    qlabel = QLabel("--", self)
-                    qlabel.setText(f'{label[0]} : {label_data.get(label[1])}')
-                    qlabel.repaint()
-                    labeHBox.addWidget(qlabel)
-            else:
-                label = row[0]
-                label = QLabel(f'{label[0]} : {label_data.get(label[1])}')
-                label.repaint()
-                labeHBox.addWidget(label)
-            labelVBox.addLayout(labeHBox)
-
-        print('here')
         self.mainGroupBox.setLayout(labelVBox)
 
+    def set_mainGroupBox_label(self):  
+
+        self.ql_1 = QLabel()
+        i = self.label_data.get('articleName')      
+        self.ql_1.setText(f'article name : {i}')
+        self.ql_1.repaint()
+
+        self.ql_2 = QLabel()
+        i = self.label_data.get('aptConstructionCompanyName')
+        self.ql_2.setText(f'contruct firm : {i}')
+        self.ql_2.repaint()
+
+    def update_mainGroupBox_label(self):  
+
+        i = self.label_data.get('articleName')      
+        self.ql_1.setText(f'article name : {i}')
+        self.ql_1.repaint()
+
+
+        i = self.label_data.get('aptConstructionCompanyName')
+        self.ql_2.setText(f'contruct firm : {i}')
+        self.ql_2.repaint()
 
     def set_detailGroupBox(self):
         if self.label_data == None:
