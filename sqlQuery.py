@@ -12,7 +12,7 @@ def regexp(expr, item):
 class Tab1_table:
 
     def get_data(self, where=None):
-        time_str = '(20220124-080642)'
+        time_str = '(20220122-181419)'
         fileName = f'naverLand{time_str}'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print(fileDir)
@@ -22,11 +22,32 @@ class Tab1_table:
         cur = conn.cursor()
 
 
+        # cols = ['city_gu.cityNo', 'city_gu.name as gu', 'gu_dong.name as dong', 'dong_complex.name as complex',
+        #         'article_info.articleNo', 'article_info.articleName', 'article_info.realestateTypeCode', 
+        #         'article_info.aptUseApproveYmd', 'article_info.dealPrice', 'article_info.warrantPrice',
+        #         'article_info.householdCountByPtp','article_info.exposeStartYMD', 'article_info.tradeTypeName',
+        #         'v.idNo as complexNo', 'v.date', 'v.price']
+
         cols = ['city_gu.cityNo', 'city_gu.name as gu', 'gu_dong.name as dong', 'dong_complex.name as complex',
-                'article_info.articleNo', 'article_info.articleName', 'article_info.realestateTypeCode', 
-                'article_info.aptUseApproveYmd', 'article_info.dealPrice', 'article_info.warrantPrice',
-                'article_info.householdCountByPtp','article_info.exposeStartYMD', 'article_info.tradeTypeName',
+                'article_info.articleNo', 'article_info.articleName', 'article_info.exposeStartYMD', 'article_info.exposeEndYMD',
+                'article_info.articleConfirmYMD', 'article_info.aptName', 'article_info.aptHouseholdCount',
+                'article_info.aptConstructionCompanyName', 'article_info.aptUseApproveYmd', 'article_info.totalDongCount',
+                'article_info.realestateTypeCode', 'article_info.tradeTypeName', 'article_info.verificationTypeCode',
+                'article_info.cityName', 'article_info.divisionName', 'article_info.sectionName', 'article_info.householdCountByPtp',
+                'article_info.walkingTimeToNearSubway', 'article_info.detailAddress', 'article_info.roomCount',
+                'article_info.bathroomCount', 'article_info.moveInTypeCode', 'article_info.moveInDiscussionPossibleYN',
+                'article_info.monthlyManagementCost', 'article_info.monthlyManagementCostIncludeItemName',
+                'article_info.buildingName', 'article_info.articleFeatureDescription', 'article_info.detailDescription',
+                'article_info.floorLayerName', 'article_info.floorInfo', 'article_info.priceChangeState', 'article_info.dealOrWarrantPrc',
+                'article_info.direction', 'article_info.latitude', 'article_info.longitude',
+                'article_info.entranceTypeName', 'article_info.rentPrice',
+                'article_info.dealPrice', 'article_info.warrantPrice', 'article_info.allWarrantPrice', 'article_info.financePrice',
+                'article_info.premiumPrice', 'article_info.isalePrice', 'article_info.allRentPrice', 'article_info.priceBySpace',
+                'article_info.bondPrice', 'article_info.middlePayment', 'article_info.realtorName', 'article_info.representativeName',
+                'article_info.address', 'article_info.representativeTelNo', 'article_info.cellPhoneNo', 'article_info.supplySpace',
+                'article_info.exclusiveSpace', 'article_info.exclusiveRate', 'article_info.tagList',
                 'v.idNo as complexNo', 'v.date', 'v.price']
+
         cols_str = ', '.join(cols)
         print('='*100, f'cols_str : {cols_str}', sep='\n')
 
@@ -72,7 +93,7 @@ class Tab1_table:
 class label:
 
     def get_data(self, where=None):
-        time_str = '(20220124-080642)'
+        time_str = '(20220122-181419)'
         fileName = f'naverLand{time_str}'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print(fileDir)
@@ -119,7 +140,7 @@ class label:
 class Tab4_table:
 
     def get_data(self, where=None):
-        time_str = '(20220124-080642)'
+        time_str = '(20220122-181419)'
         fileName = f'naverLand{time_str}'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print(fileDir)

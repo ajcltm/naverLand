@@ -4,7 +4,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtCore import Qt
 
-sys.path.append('C:/Users/user/PycharmProjects/naverLand')
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
+sys.path.append('C:/Users/ajcltm/PycharmProjects/naverLand')
 import dataclass
 import sqlQuery
 import whereClause
@@ -40,14 +43,33 @@ class MainWindow(QWidget):
         self.set_mainGroupBox()
         self.set_mainGroupBox_label()
         self.set_mainGroupBox_layout()
-        # self.set_detailGroupBox()
-        # self.set_brokerGroupBox()
+
+        self.set_detailGroupBox()
+        self.set_detailGroupBox_label()
+        self.set_detailGroupBox_layout()
+
+        self.set_brokerGroupBox()
+        self.set_brokerGroupBox_label()
+        self.set_brokerGroupBox_layout()
 
         self.tabs2 = QTabWidget()
-        self.tab3 = QTableWidget()
+        self.tab3 = QWidget()
+        tab3_layout = QHBoxLayout()
+        self.fig = plt.Figure()
+        self.tab3_plot = FigureCanvas(self.fig)
+        self.tab3_table = QTableWidget()
+        tab3_layout.addWidget(self.tab3_plot)
+        tab3_layout.addWidget(self.tab3_table)
+        self.tab3.setLayout(tab3_layout)
+
+
+        self.tab4 = QWidget()
+        tab4_layout = QHBoxLayout()
+        self.tab4.setLayout(tab4_layout)
+        
         self.tab4 = QTableWidget()
-        self.tabs2.addTab(self.tab3, 'table4')
-        self.tabs2.addTab(self.tab4, 'table5')
+        self.tabs2.addTab(self.tab3, 'tab3')
+        self.tabs2.addTab(self.tab4, 'tab4')
 
         self.leftLayout = QVBoxLayout()
         self.leftLayout.addWidget(self.tabs1)
@@ -55,8 +77,8 @@ class MainWindow(QWidget):
         self.rightLayout = QVBoxLayout()
         self.rightLayout.addSpacing(24)
         self.rightLayout.addWidget(self.mainGroupBox)
-        # self.rightLayout.addWidget(self.detailGroupBox)
-        # self.rightLayout.addWidget(self.brokerGroupBox)
+        self.rightLayout.addWidget(self.detailGroupBox)
+        self.rightLayout.addWidget(self.brokerGroupBox)
         self.rightLayout.addWidget(self.tabs2)
         
         self.layout = QHBoxLayout()
@@ -106,10 +128,10 @@ class MainWindow(QWidget):
 
         where = whereClause.label_WhereHandler().get_where_clause(articleNo)
 
-        self.label_data = sqlQuery.label().get_data(where=where)[0]
-        self.update_mainGroupBox_label()
-        # self.set_detailGroupBox()
-        # self.set_brokerGroupBox()
+        self.label_data = sqlQuery.Tab1_table().get_data(where=where)[0]
+        self.set_mainGroupBox_label(update=True)
+        self.set_detailGroupBox_label(update=True)
+        self.set_brokerGroupBox_label(update=True)
 
         complexNo = self.tab1_data[row].get('complexNo')
         print('='*100, f'row : {complexNo}', sep='\n')
@@ -117,7 +139,7 @@ class MainWindow(QWidget):
         where = whereClause.tab4_WhereHandler().get_where_clause(complexNo)
 
         self.tab4_data = sqlQuery.Tab4_table().get_data(where=where)
-        self.set_tab4()
+        self.set_tab3_table()
 
 
     def set_cell_lineEdit(self):
@@ -205,128 +227,332 @@ class MainWindow(QWidget):
 
 
     def set_mainGroupBox(self):
-        print('='*100, f'label_Data : \n{self.label_data}', sep='\n')
 
         self.mainGroupBox = QGroupBox('Main Information')
-    
-    def set_mainGroupBox_layout(self):
 
+    def set_mainGroupBox_label(self, update=False):  
+
+        if update == False :
+            self.ql_articleName = QLabel()
+        i = self.label_data.get('articleName')      
+        self.ql_articleName.setText(f'article name : {i}')
+        self.ql_articleName.repaint()
+
+        if update == False :
+            self.ql_aptUseApproveYmd = QLabel()
+        i = self.label_data.get('aptUseApproveYmd')
+        self.ql_aptUseApproveYmd.setText(f'approve date : {i}')
+        self.ql_aptUseApproveYmd.repaint()
+
+        if update == False :
+            self.ql_fullAddress = QLabel()
+        i = self.label_data.get('fullAddress')
+        self.ql_fullAddress.setText(f'address : {i}')
+        self.ql_fullAddress.repaint()
+
+        if update == False :
+            self.ql_dealPrice = QLabel()
+        i = self.label_data.get('dealPrice')
+        self.ql_dealPrice.setText(f'deal price : {i}')
+        self.ql_dealPrice.repaint()
+
+        if update == False :
+            self.ql_price = QLabel()
+        i = self.label_data.get('price')
+        self.ql_price.setText(f'real price : {i}')
+        self.ql_price.repaint()
+
+        if update == False :
+            self.ql_allWarrantPrice = QLabel()
+        i = self.label_data.get('allWarrantPrice')
+        self.ql_allWarrantPrice.setText(f'all warrant price : {i}')
+        self.ql_allWarrantPrice.repaint()
+
+        if update == False :
+            self.ql_financePrice = QLabel()
+        i = self.label_data.get('financePrice')
+        self.ql_financePrice.setText(f'finance price : {i}')
+        self.ql_financePrice.repaint()
+
+        if update == False :
+            self.ql_supplySpace = QLabel()
+        i = self.label_data.get('supplySpace')
+        self.ql_supplySpace.setText(f'supply space : {i}')
+        self.ql_supplySpace.repaint()
+
+        if update == False :
+            self.ql_exclusiveSpace = QLabel()
+        i = self.label_data.get('exclusiveSpace')
+        self.ql_exclusiveSpace.setText(f'exclusive space : {i}')
+        self.ql_exclusiveSpace.repaint()
+
+        if update == False :
+            self.ql_exclusiveRate = QLabel()
+        i = self.label_data.get('exclusiveRate')
+        self.ql_exclusiveRate.setText(f'exclusive rate : {i}')
+        self.ql_exclusiveRate.repaint()
+
+        if update == False :
+            self.ql_walkingTimeToNearSubway = QLabel()
+        i = self.label_data.get('walkingTimeToNearSubway')
+        self.ql_walkingTimeToNearSubway.setText(f'time to subway : {i}')
+        self.ql_walkingTimeToNearSubway.repaint()
+
+        if update == False :
+            self.ql_totalDongCount = QLabel()
+        i = self.label_data.get('totalDongCount')
+        self.ql_totalDongCount.setText(f'dong count : {i}')
+        self.ql_totalDongCount.repaint()
+
+        if update == False :
+            self.ql_aptHouseholdCount = QLabel()
+        i = self.label_data.get('aptHouseholdCount')
+        self.ql_aptHouseholdCount.setText(f'house count : {i}')
+        self.ql_aptHouseholdCount.repaint()
+
+        if update == False :
+            self.ql_floorInfo = QLabel()
+        i = self.label_data.get('floorInfo')
+        self.ql_floorInfo.setText(f'floor info : {i}')
+        self.ql_floorInfo.repaint()
+
+        if update == False :
+            self.ql_entranceTypeName = QLabel()
+        i = self.label_data.get('entranceTypeName')
+        self.ql_entranceTypeName.setText(f'entrance type : {i}')
+        self.ql_entranceTypeName.repaint()
+
+
+    def set_mainGroupBox_layout(self):
         labelVBox = QVBoxLayout()
+
         labelHBox = QHBoxLayout()
-        labelHBox.addWidget(self.ql_1)
-        labelHBox.addWidget(self.ql_2)
+        labelHBox.addWidget(self.ql_articleName)
+        labelHBox.addWidget(self.ql_aptUseApproveYmd)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_fullAddress)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_dealPrice)
+        labelHBox.addWidget(self.ql_price)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_allWarrantPrice)
+        labelHBox.addWidget(self.ql_financePrice)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_supplySpace)
+        labelHBox.addWidget(self.ql_exclusiveSpace)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_exclusiveRate)
+        labelHBox.addWidget(self.ql_walkingTimeToNearSubway)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_totalDongCount)
+        labelHBox.addWidget(self.ql_aptHouseholdCount)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_floorInfo)
+        labelHBox.addWidget(self.ql_entranceTypeName)
         labelVBox.addLayout(labelHBox)
 
         self.mainGroupBox.setLayout(labelVBox)
-
-    def set_mainGroupBox_label(self):  
-
-        self.ql_1 = QLabel()
-        i = self.label_data.get('articleName')      
-        self.ql_1.setText(f'article name : {i}')
-        self.ql_1.repaint()
-
-        self.ql_2 = QLabel()
-        i = self.label_data.get('aptConstructionCompanyName')
-        self.ql_2.setText(f'contruct firm : {i}')
-        self.ql_2.repaint()
-
-    def update_mainGroupBox_label(self):  
-
-        i = self.label_data.get('articleName')      
-        self.ql_1.setText(f'article name : {i}')
-        self.ql_1.repaint()
-
-
-        i = self.label_data.get('aptConstructionCompanyName')
-        self.ql_2.setText(f'contruct firm : {i}')
-        self.ql_2.repaint()
+    
 
     def set_detailGroupBox(self):
-        if self.label_data == None:
-            label_data = {}
-        else : 
-            label_data = self.label_data[0]
 
-        self.detailGroupBox = QGroupBox('Detail Information')
+        self.detailGroupBox = QGroupBox('detail Information')
+
+
+    def set_detailGroupBox_label(self, update=False):  
+
+        if update == False :
+            self.ql_aptConstructionCompanyName = QLabel()
+        i = self.label_data.get('aptConstructionCompanyName')
+        self.ql_aptConstructionCompanyName.setText(f'construction firm : {i}')
+        self.ql_aptConstructionCompanyName.repaint()
+
+        if update == False :
+            self.ql_exposeStartYMD = QLabel()
+        i = self.label_data.get('exposeStartYMD')      
+        self.ql_exposeStartYMD.setText(f'expose start date : {i}')
+        self.ql_exposeStartYMD.repaint()
+
+        if update == False :
+            self.ql_exposeEndYMD = QLabel()
+        i = self.label_data.get('exposeEndYMD')
+        self.ql_exposeEndYMD.setText(f'expose end date : {i}')
+        self.ql_exposeEndYMD.repaint()
+
+        if update == False :
+            self.ql_roomCount = QLabel()
+        i = self.label_data.get('roomCount')
+        self.ql_roomCount.setText(f'room count : {i}')
+        self.ql_roomCount.repaint()
+
+        if update == False :
+            self.ql_bathroomCount = QLabel()
+        i = self.label_data.get('bathroomCount')
+        self.ql_bathroomCount.setText(f'bathroom count : {i}')
+        self.ql_bathroomCount.repaint()
+
+        if update == False :
+            self.ql_monthlyManagementCost = QLabel()
+        i = self.label_data.get('monthlyManagementCost')
+        self.ql_monthlyManagementCost.setText(f'management cost : {i}')
+        self.ql_monthlyManagementCost.repaint()
+
+        if update == False :
+            self.ql_monthlyManagementCostInclusdeItemName = QLabel()
+        i = self.label_data.get('monthlyManagementCostInclusdeItemName')
+        self.ql_monthlyManagementCostInclusdeItemName.setText(f'include item : {i}')
+        self.ql_monthlyManagementCostInclusdeItemName.repaint()
+
+        if update == False :
+            self.ql_direction = QLabel()
+        i = self.label_data.get('direction')
+        self.ql_direction.setText(f'direction : {i}')
+        self.ql_direction.repaint()
+
+        if update == False :
+            self.ql_articleFeatureDescription = QLabel()
+        i = self.label_data.get('articleFeatureDescription')
+        self.ql_articleFeatureDescription.setText(f'description : {i}')
+        self.ql_articleFeatureDescription.repaint()
+
+
+    def set_detailGroupBox_layout(self):
         labelVBox = QVBoxLayout()
-        
-        labelLst = [
-                [('expose start date', 'exposeStartYMD'), ('expose end date', 'exposeEndYMD')],
-                [('room count', 'roomCount'), ('management cost', 'monthlyManagementCost')],
-                [('bathroom count', 'bathroomCount'), ('include item', 'monthlyManagementCostInclusdeItemName')],
-                [('direction', 'direction'), ('time to subway', 'walkingTimeToNearSubway')],
-                [('description', 'articleFeatureDescription')],
-                [('detail description', 'detailDescription')]
-                ]
 
-        for row in labelLst:
-            labeHBox = QHBoxLayout()
-            if len(row)>1:
-                for label in row:
-                    label = QLabel(f'{label[0]} : {label_data.get(label[1])}')
-                    labeHBox.addWidget(label)
-            else:
-                label = row[0]
-                label = QLabel(f'{label[0]} : {label_data.get(label[1])}')
-                labeHBox.addWidget(label)
-            labelVBox.addLayout(labeHBox)
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_aptConstructionCompanyName)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_exposeStartYMD)
+        labelHBox.addWidget(self.ql_exposeEndYMD)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_roomCount)
+        labelHBox.addWidget(self.ql_bathroomCount)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_monthlyManagementCost)
+        labelHBox.addWidget(self.ql_monthlyManagementCostInclusdeItemName)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_direction)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_articleFeatureDescription)
+        labelVBox.addLayout(labelHBox)
 
         self.detailGroupBox.setLayout(labelVBox)
 
 
     def set_brokerGroupBox(self):
-        if self.label_data == None:
-            label_data = {}
-        else : 
-            label_data = self.label_data[0]
 
-        self.brokerGroupBox = QGroupBox('Broker Information')
+        self.brokerGroupBox = QGroupBox('broker Information')
+
+
+    def set_brokerGroupBox_label(self, update=False):  
+
+        if update == False :
+            self.ql_realtorName = QLabel()
+        i = self.label_data.get('realtorName')
+        self.ql_realtorName.setText(f'broker name : {i}')
+        self.ql_realtorName.repaint()
+
+        if update == False :
+            self.ql_representativeName = QLabel()
+        i = self.label_data.get('representativeName')      
+        self.ql_representativeName.setText(f'representative : {i}')
+        self.ql_representativeName.repaint()
+
+        if update == False :
+            self.ql_address = QLabel()
+        i = self.label_data.get('address')
+        self.ql_address.setText(f'broker address : {i}')
+        self.ql_address.repaint()
+
+        if update == False :
+            self.ql_representiveTelNo = QLabel()
+        i = self.label_data.get('telephon')
+        self.ql_representiveTelNo.setText(f'telephon : {i}')
+        self.ql_representiveTelNo.repaint()
+
+        if update == False :
+            self.ql_cellPhoneNo = QLabel()
+        i = self.label_data.get('cellPhoneNo')
+        self.ql_cellPhoneNo.setText(f'cell phone : {i}')
+        self.ql_cellPhoneNo.repaint()
+
+
+    def set_brokerGroupBox_layout(self):
         labelVBox = QVBoxLayout()
-        
-        labelLst = [
-                [('broker name', 'realtorName'), ('representative', 'representativeName')],
-                [('address', 'address')],
-                [('telephon', 'representiveTelNo'), ('cell phone', 'cellPhoneNo')]
-                ]
 
-        for row in labelLst:
-            labeHBox = QHBoxLayout()
-            if len(row)>1:
-                for label in row:
-                    label = QLabel(f'{label[0]} : {label_data.get(label[1])}')
-                    labeHBox.addWidget(label)
-            else:
-                label = row[0]
-                label = QLabel(f'{label[0]} : {label_data.get(label[1])}')
-                labeHBox.addWidget(label)
-            labelVBox.addLayout(labeHBox)
-        
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_realtorName)
+        labelHBox.addWidget(self.ql_representativeName)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_address)
+        labelVBox.addLayout(labelHBox)
+
+        labelHBox = QHBoxLayout()
+        labelHBox.addWidget(self.ql_representiveTelNo)
+        labelHBox.addWidget(self.ql_cellPhoneNo)
+        labelVBox.addLayout(labelHBox)
+
         self.brokerGroupBox.setLayout(labelVBox)
 
-    def set_tab4(self):
+
+    def set_tab3_table(self):
         
         cols = ['date', 'real price']
-        self.tab4.setColumnCount(len(cols))
-        self.tab4.setRowCount(len(self.tab4_data))
+        self.tab3_table.setColumnCount(len(cols))
+        self.tab3_table.setRowCount(len(self.tab4_data))
         
-        self.tab4.setHorizontalHeaderLabels(cols)
-        self.tab4.horizontalHeader().setStyleSheet("::section{background-color : #05111b;" "color:white;" "border-style : solid;}")
+        self.tab3_table.setHorizontalHeaderLabels(cols)
+        self.tab3_table.horizontalHeader().setStyleSheet("::section{background-color : #05111b;" "color:white;" "border-style : solid;}")
 
         # create table data
 
-        self.set_tab4_contents()
+        self.set_tab3_table_contents()
     
-    def set_tab4_contents(self):
+    def set_tab3_table_contents(self):
         db_cols = ['date', 'price']
         for row_tuple in enumerate(self.tab4_data) :  # rows
             for col_tuple in enumerate(db_cols) : #cols
-                self.tab4.setItem(row_tuple[0], col_tuple[0], QTableWidgetItem(str(row_tuple[1].get(col_tuple[1]))))
+                self.tab3_table.setItem(row_tuple[0], col_tuple[0], QTableWidgetItem(str(row_tuple[1].get(col_tuple[1]))))
 
-        self.tab4.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.tab3_table.setEditTriggers(QTableWidget.NoEditTriggers)
         
 
-        
+    def set_tab3_plot(self):
+        self.tab4_data
+        ax = self.fig.add_subplot(111)
+        ax.plot(df.index, df['Adj Close'], label='Adj Close')
+        ax.plot(df.index, df['MA20'], label='MA20')
+        ax.plot(df.index, df['MA60'], label='MA60')
+        ax.legend(loc='upper right')
+        ax.grid()
+
+        self.canvas.draw()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
