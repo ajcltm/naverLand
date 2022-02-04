@@ -4,10 +4,12 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtCore import Qt
 
+from datetime import datetime
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import matplotlib.ticker as ticker
 
-sys.path.append('C:/Users/ajcltm/PycharmProjects/naverLand')
+sys.path.append('C:/Users/user/PycharmProjects/naverLand')
 import dataclass
 import sqlQuery
 import whereClause
@@ -55,11 +57,16 @@ class MainWindow(QWidget):
         self.tabs2 = QTabWidget()
         self.tab3 = QWidget()
         tab3_layout = QHBoxLayout()
-        self.fig = plt.Figure()
+        self.fig = plt.Figure(figsize=(2.5,2))
         self.tab3_plot = FigureCanvas(self.fig)
+
+        tab3_table_vlayout = QVBoxLayout()
         self.tab3_table = QTableWidget()
+        tab3_table_vlayout.addWidget(self.tab3_table)
+
         tab3_layout.addWidget(self.tab3_plot)
-        tab3_layout.addWidget(self.tab3_table)
+        tab3_layout.addLayout(tab3_table_vlayout)
+        # tab3_layout.addWidget(self.tab3_table)
         self.tab3.setLayout(tab3_layout)
 
 
@@ -141,6 +148,8 @@ class MainWindow(QWidget):
         self.tab4_data = sqlQuery.Tab4_table().get_data(where=where)
         self.set_tab3_table()
 
+        self.set_tab3_plot()
+
 
     def set_cell_lineEdit(self):
         self.cityNo_le = QLineEdit()
@@ -172,6 +181,7 @@ class MainWindow(QWidget):
 
         self.dealPrice_le = QLineEdit()
         self.tab1.setCellWidget(0, 8, self.dealPrice_le)
+        self.dealPrice_le.returnPressed.connect(self.dealPrice_cellLineEditClicked)
 
         self.realPrice_le = QLineEdit()
         self.tab1.setCellWidget(0, 9, self.realPrice_le)
@@ -216,6 +226,26 @@ class MainWindow(QWidget):
 
         dic = self.where
         dic['articleName'] = where_content
+        self.where = dic
+        print('='*100, self.where, sep='\n')
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
+        print('='*100, f'where_clause : {where_clause}', sep='\n')
+        print(f'where_clause : {where_clause}')
+        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+    
+        self.set_tab1_contents()
+
+    def dealPrice_cellLineEditClicked(self):
+        text = self.dealPrice_le.text()
+
+        target_col = 'article_info.dealPrice'
+        if len(text) > 0 :
+            where_content = whereClause.tab1_WhereHandler().handle_comma_numeric(text, target_col)
+        else :
+            where_content = None
+
+        dic = self.where
+        dic['dealPrice'] = where_content
         self.where = dic
         print('='*100, self.where, sep='\n')
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
@@ -544,15 +574,19 @@ class MainWindow(QWidget):
         
 
     def set_tab3_plot(self):
-        self.tab4_data
+        date = [self.tab4_data[i].get('date') for i in range(len(self.tab4_data))]
+        date_datetime = [datetime.strptime(i,'%Y-%m-%d') for i in date]
+        price = [self.tab4_data[i].get('price') for i in range(len(self.tab4_data))]
+        
+        print(f'date : {date_datetime}')
+        print(f'price : {price}')
         ax = self.fig.add_subplot(111)
-        ax.plot(df.index, df['Adj Close'], label='Adj Close')
-        ax.plot(df.index, df['MA20'], label='MA20')
-        ax.plot(df.index, df['MA60'], label='MA60')
-        ax.legend(loc='upper right')
+        ax.plot(date_datetime, price)
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(600))
         ax.grid()
+        # plt.rc('axes', labelsize=10)
 
-        self.canvas.draw()
+        self.tab3_plot.draw()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

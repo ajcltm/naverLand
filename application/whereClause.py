@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from unicodedata import numeric
 from numpy import where
 import pandas as pd
 import re
@@ -40,6 +41,48 @@ class tab1_WhereHandler:
 
         return where
 
+    def handle_comma_numeric(self, text, target_col):
+
+        lst = text.split(',')
+
+        if len(lst)>1 : 
+            lst = text.split(',')
+            print(lst)
+            wheres = [self.handle_numeric(i.strip(), target_col) for i in lst]
+            print(f'wheres : {wheres}')
+            where = ' and '.join(wheres)
+
+        else :
+            where = self.handle_numeric(text, target_col)
+        
+        print(f'where : {where}')
+
+        return where
+
+    def handle_numeric(self, text, target_col):
+        correctDic = {'>' : '>', '>=':'>=', '=>':'>=', '<':'<', '<=':'<=', '<=':'<=', '=':'='}
+        reverseDic = {'>' : '<', '>=':'<=', '>=':'<=', '<':'>', '=<':'>=', '<=':'>=', '=':'='}
+
+        symbol = re.findall(r'[^\d]+', text)[0].strip()
+        print(f'symbol: {symbol}')
+        split_lst = text.split(symbol)
+        print(f'split_lst : {split_lst}')
+
+        for item in enumerate(split_lst):
+            if len(item[1].strip())>0:
+                numeric = item[1].strip()
+                trueOrFalse = item[0]
+        print(f'numeric : {numeric}')
+        print(trueOrFalse)
+        if trueOrFalse == 0:
+            final_symbol = reverseDic.get(symbol)
+        else:
+            final_symbol = correctDic.get(symbol)
+        print(f'final_symbol : {final_symbol}')
+
+        where = f'{target_col}' + final_symbol + numeric
+        print(where)
+        return where
 
 class label_WhereHandler:
 
@@ -56,12 +99,7 @@ class tab4_WhereHandler:
 
 
 if __name__ == '__main__':
-    target_col = 'article_info.articleNo'
-    text = '''222, 111'''
-    tab1_WhereHandler().handle_comma(text, target_col)
-    
-    dic = tab1_WhereHandler().set_where_dict()
-    dic = {'a' : 'a'}
-    result = tab1_WhereHandler().get_where_clause(dic)
-    print(result)
+    target_col = 'article_info.dealPrice'
+    text = '111>, 222>'
+    tab1_WhereHandler().handle_comma_numeric(text, target_col)
 

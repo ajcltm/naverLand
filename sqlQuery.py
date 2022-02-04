@@ -12,7 +12,7 @@ def regexp(expr, item):
 class Tab1_table:
 
     def get_data(self, where=None):
-        time_str = '(20220122-181419)'
+        time_str = '(20220124-080642)'
         fileName = f'naverLand{time_str}'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print(fileDir)
@@ -93,7 +93,7 @@ class Tab1_table:
 class label:
 
     def get_data(self, where=None):
-        time_str = '(20220122-181419)'
+        time_str = '(20220124-080642)'
         fileName = f'naverLand{time_str}'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print(fileDir)
@@ -140,7 +140,7 @@ class label:
 class Tab4_table:
 
     def get_data(self, where=None):
-        time_str = '(20220122-181419)'
+        time_str = '(20220124-080642)'
         fileName = f'naverLand{time_str}'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print(fileDir)
