@@ -101,12 +101,20 @@ class ComplexPriceSaver:
     def create_df(self, dc):
         print(dc)
         if dc.pct_change == None :
-            df = pd.DataFrame({'date':dc.date, 'price':dc.price})
-            df = df.assign(pct_change = dc.pct_change)
+            if len(dc.price)>0:
+                df = pd.DataFrame({'date':dc.date, 'price':dc.price})
+                df = df.assign(pct_change = dc.pct_change)
+            else:
+                df = pd.DataFrame({'date':None, 'price':None}, index=[0])
+                df = df.assign(pct_change = dc.pct_change)
         else :
-            df = pd.DataFrame({'date':dc.date, 'price':dc.price, 'pct_change':dc.pct_change})
+            if len(dc.price)>0:
+                df = pd.DataFrame({'date':dc.date, 'price':dc.price, 'pct_change':dc.pct_change})
+            else :
+                df = pd.DataFrame({'date':None, 'price':None, 'pct_change':None}, index=[0])
         df = df.assign(idNo = dc.idNo)
-        df = df.loc[:, ['idNo', 'date', 'price', 'pct_change']]
+        df = df.assign(ptpNo = dc.ptpNo)
+        df = df.loc[:, ['idNo', 'ptpNo', 'date', 'price', 'pct_change']]
         return df
 
     def save_sql(self, dc):

@@ -123,6 +123,9 @@ class ArticleDCs:
 class ArticleInfoDC:
     articleNo : str
     articleName : str
+    hscpNo : str
+    ptpNo : str 
+    ptpName : str
     exposeStartYMD : str
     exposeEndYMD : str
     articleConfirmYMD : str
@@ -227,6 +230,7 @@ class ArticleInfoDCs:
 @dataclass
 class ComplexPriceDC :
     idNo : str
+    ptpNo : str
     pct_change : float
     date : List = field(default_factory=List)
     price : List = field(default_factory=List)

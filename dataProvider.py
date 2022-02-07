@@ -159,10 +159,10 @@ class ComplexDataProvider:
 
 class ComplexPriceDataProvider:
 
-    def get_data(self, complexNo):
+    def get_data(self, complexNo, ptpNo):
 
         RandomSleep().sleep()
-        url = f'https://new.land.naver.com/api/complexes/{complexNo}/prices?complexNo={complexNo}&year=5&tradeType=A1&areaNo=1&type=chart'
+        url = f'https://new.land.naver.com/api/complexes/{complexNo}/prices?complexNo={complexNo}&year=5&tradeType=A1&areaNo={ptpNo}&type=chart'
         headers = {
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -186,14 +186,16 @@ class ComplexPriceDataProvider:
             data = None
         return data
 
-    def get_generator(self, complexNo):
-        data = self.get_data(complexNo)
+    def get_generator(self, complexNo, ptpNo):
+        
+
+        data = self.get_data(complexNo, ptpNo)
         if data == None:
             return (dataclass.ComplexPriceDC(**{'idNo':None, 'date':None, 'price':None}) for k in [0])
         date = data.get('realPriceDataXList')[1:]
         price = data.get('realPriceDataYList')[1:]
 
-        return (dataclass.ComplexPriceDC(**{'idNo':complexNo, 'pct_change':None, 'date':date, 'price':price}) for k in [0])
+        return (dataclass.ComplexPriceDC(**{'idNo':complexNo, 'ptpNo':ptpNo, 'pct_change':None, 'date':date, 'price':price}) for k in [0])
 
 
 class ArticleDataProvider:
@@ -271,7 +273,7 @@ class ArticleInfoDataProvider:
         return data
     
     def get_generator(self, articleNo):
-        ad_keys = ['articleNo', 'articleName', 'exposeStartYMD','exposeEndYMD','articleConfirmYMD','aptName','aptHouseholdCount','aptConstructionCompanyName','aptUseApproveYmd',
+        ad_keys = ['articleNo', 'articleName', 'hscpNo', 'ptpNo', 'ptpName', 'exposeStartYMD','exposeEndYMD','articleConfirmYMD','aptName','aptHouseholdCount','aptConstructionCompanyName','aptUseApproveYmd',
         'totalDongCount', 'realestateTypeCode', 'tradeTypeName', 'verificationTypeCode', 'cityName', 'divisionName', 'sectionName', 'householdCountByPtp',
         'walkingTimeToNearSubway', 'detailAddress', 'roomCount', 'bathroomCount', 'moveInTypeCode', 'moveInDiscussionPossibleYN', 'monthlyManagementCost', 'monthlyManagementCostIncludeItemName',
         'buildingName', 'articleFeatureDescription', 'detailDescription', 'floorLayerName']
@@ -334,9 +336,14 @@ class ArticleInfoDataProvider:
 
 if __name__ == '__main__':
 
-    data = ArticleInfoDataProvider().get_data('2201917900').get('articleSpace')
-    print('='*100, f'data : \n{data}', sep='=\n')
+    gen_ = ArticleInfoDataProvider().get_generator('2203705303')
+    
+    for i in gen_:
+        print('='*100 , i, sep = '\n')
+        complexNo = i.hscpNo
+        ptpNo = i.ptpNo
 
-    gen = ArticleInfoDataProvider().get_generator('2201917900')
+    
+    gen = ComplexPriceDataProvider().get_generator(complexNo, ptpNo)
     for i in gen:
-        print('='*100, f'gen : \n{i}', sep='=\n')
+        print('='*100, i, sep = '\n')

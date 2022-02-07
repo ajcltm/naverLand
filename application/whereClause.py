@@ -8,10 +8,10 @@ import re
 class tab1_WhereHandler:
     
     def set_where_dict(self):
-        db_cols = ['cityNo', 'gu', 'dong', 'complex', 'articleNo', 'articleName',
-                    'realestateTypeCode', 'aptUseApproveYmd', 'dealPrice',
-                    'wrrantPrice', 'householdCountByPtp', 'exposeStartYMD',
-                    'tradeTypeName']
+        db_cols = ['cityName', 'gu', 'dong', 'complex', 'articleNo', 'articleName',
+                    'dealPrice', 'realPrice',
+                    'allWarrantPrice', 'householdCountByPtp', 'aptUseApproveYmd','exposeStartYMD',
+                    'realestateTypeCode', 'tradeTypeName', 'search']
         
         dic ={key : None for key in db_cols}
         print(dic)
@@ -72,8 +72,6 @@ class tab1_WhereHandler:
             if len(item[1].strip())>0:
                 numeric = item[1].strip()
                 trueOrFalse = item[0]
-        print(f'numeric : {numeric}')
-        print(trueOrFalse)
         if trueOrFalse == 0:
             final_symbol = reverseDic.get(symbol)
         else:
@@ -84,6 +82,21 @@ class tab1_WhereHandler:
         print(where)
         return where
 
+    def handle_searchLideEdit(self, text):
+
+        dic = {'city': 'cityName', 'gu': 'gu', 'dong' : 'dong', 'complex' : 'complex', 
+                'articleName' : 'articleName', 'articleNo' : 'articleNo', 
+                'dealPrice' : 'dealPrice', 'realPrice' : 'v.price', 'allWarrant' : 'allWarrantPrice',
+                'hhCount' : 'householdCountByPtp',  'ApproveYmd' : 'aptUseApproveYmd', 'exposeYMD':'exposeStartYMD', 
+                'estateType': 'realestateTypeCode','tradeType' : 'tradeTypeName'}
+
+        keys = dic.keys()
+        text_ = text
+        for i in keys:
+            value = dic.get(i)
+            text_ = text_.replace(i, value)
+        return text_
+
 class label_WhereHandler:
 
     def get_where_clause(self, articleNo):
@@ -93,13 +106,14 @@ class label_WhereHandler:
 
 class tab4_WhereHandler:
 
-    def get_where_clause(self, complexNo):
-        where = f'''where idNo = {complexNo}'''
+    def get_where_clause(self, complexNo, ptpNo):
+        where = f'''where idNo = {complexNo} and ptpNo = {ptpNo}'''
         return where
 
 
 if __name__ == '__main__':
-    target_col = 'article_info.dealPrice'
-    text = '111>, 222>'
-    tab1_WhereHandler().handle_comma_numeric(text, target_col)
+    text = '''dealPrice > realPrice'''
+
+    where_content = tab1_WhereHandler().handle_searchLideEdit(text)
+    print(where_content)
 
