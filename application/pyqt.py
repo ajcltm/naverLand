@@ -131,7 +131,6 @@ class MainWindow(QWidget):
         self.setLayout(self.layout)
 
 
-    
     def search_LineEditClicked(self):
 
         text = self.searchLineEdit.text()
@@ -141,14 +140,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['search'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -175,9 +175,6 @@ class MainWindow(QWidget):
         self.tab1.clicked.connect(self.tab1Clicked)
     
     def set_tab1_contents(self):
-        print([i.get('articleNo') for i in self.tab1_data[97:102]])
-        print([i.get('articleNo') for i in self.tab1_data[197:202]])
-        print([i.get('articleNo') for i in self.tab1_data[-5:-1]])
         if self.tab1_maxRowCount + 100 > len(self.tab1_data) :
             if len(self.tab1_data) == 0:
                 self.tab1.setRowCount(1)                    
@@ -219,7 +216,6 @@ class MainWindow(QWidget):
 
     def scrolled(self, value):
         if value == self.tab1.verticalScrollBar().maximum():
-            print('reached max') # that will be the bottom/right end
             if self.tab1_maxRowCount + 100 > len(self.tab1_data) :
                 self.tab1_maxRowCount = len(self.tab1_data)
             else:
@@ -231,7 +227,6 @@ class MainWindow(QWidget):
         row = self.tab1.currentIndex().row()-1
 
         articleNo = self.tab1_data[row].get('articleNo')
-        print('='*100, f'row : {articleNo}', sep='\n')
 
         where = whereClause.label_WhereHandler().get_where_clause(articleNo)
 
@@ -241,7 +236,6 @@ class MainWindow(QWidget):
         self.set_brokerGroupBox_label(update=True)
 
         complexNo = self.tab1_data[row].get('complexNo')
-        print('='*100, f'row : {complexNo}', sep='\n')
         ptpNo = self.tab1_data[row].get('ptpNo')
 
         where = whereClause.tab4_WhereHandler().get_where_clause(complexNo, ptpNo)
@@ -317,14 +311,16 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['cityName'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -337,14 +333,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['gu'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -357,14 +354,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['dong'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -377,14 +375,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['complex'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -397,14 +396,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['articleName'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -417,13 +417,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['articleNo'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -437,14 +439,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['dealPrice'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -458,14 +461,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['realPrice'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100   
         self.set_tab1_contents()
@@ -479,14 +483,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['allWarrantPrice'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -500,14 +505,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['householdCountByPtp'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -521,14 +527,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['aptUseApproveYmd'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -542,14 +549,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['exposeStartYMD'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -562,14 +570,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['realestateTypeCode'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -582,14 +591,15 @@ class MainWindow(QWidget):
         else :
             where_content = None
 
-        dic = self.where
+        dic = {key : value for key, value in self.where.items()}
         dic['tradeTypeName'] = where_content
-        self.where = dic
-        print('='*100, self.where, sep='\n')
-        where_clause = whereClause.tab1_WhereHandler().get_where_clause(self.where)
-        print('='*100, f'where_clause : {where_clause}', sep='\n')
-        print(f'where_clause : {where_clause}')
-        self.tab1_data = sqlQuery.Tab1_table().get_data(where=where_clause)
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
         self.tab1_currentRowCount=0
         self.tab1_maxRowCount=100
         self.set_tab1_contents()
@@ -951,7 +961,6 @@ class MainWindow(QWidget):
     def set_tab3_plot(self):
         
         date = [self.tab4_data[i].get('date') for i in range(len(self.tab4_data))]
-        print(f'date :{date}')
         if date[0] == None:
             date_datetime = date
         else:
@@ -985,34 +994,10 @@ class MainWindow(QWidget):
         fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide', xaxis_title=None, yaxis_title=None)
         self.browser.setHtml(fig.to_html(include_plotlyjs='cdn'))
 
+    def Warning_event(self) : 
+        QMessageBox.warning(self,'ERROR','Failed to query the data.')
 
 
-        # self.fig.clf()
-
-        # plt.rc('font', family='tahoma')
-        # plt.rc('xtick', labelsize=8.5)
-        # plt.rc('ytick', labelsize=8.5)
-        # plt.rc("figure", facecolor="#2d3e50")
-
-
-        # date = [self.tab4_data[i].get('date') for i in range(len(self.tab4_data))]
-        # date_datetime = [datetime.strptime(i,'%Y-%m-%d') for i in date]
-        # price = [self.tab4_data[i].get('price')/10000 for i in range(len(self.tab4_data))]
-        
-
-        # ax = self.fig.add_subplot(111)
-        # ax.plot(date_datetime, price, linestyle = '', marker='o', markersize=4)
-        # x_term = (date_datetime[-1] - date_datetime[0]).days / 3
-        # y_term = (price[-1] - price[0]) / 5
-
-        # if x_term > 0:
-        #     ax.xaxis.set_major_locator(ticker.MultipleLocator(x_term))
-        # if y_term > 0:
-        #     ax.yaxis.set_major_locator(ticker.MultipleLocator(y_term))
-        #     ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.1f"))
-        # ax.grid(axis='y', linestyle='--', alpha = .7)
-
-        # self.tab3_plot.draw()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

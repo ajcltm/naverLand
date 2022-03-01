@@ -72,13 +72,19 @@ class tab1_WhereHandler:
             if len(item[1].strip())>0:
                 numeric = item[1].strip()
                 trueOrFalse = item[0]
+            else:
+                numeric, trueOrFalse = None, None
+
         if trueOrFalse == 0:
             final_symbol = reverseDic.get(symbol)
         else:
             final_symbol = correctDic.get(symbol)
         print(f'final_symbol : {final_symbol}')
 
-        where = f'{target_col}' + final_symbol + numeric
+        try :
+            where = f'{target_col}' + final_symbol + numeric
+        except:
+            where = 'warning'
         print(where)
         return where
 
