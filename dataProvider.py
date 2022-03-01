@@ -45,7 +45,7 @@ class GuDataProvider:
     def get_generator(self, city):
         data = self.get_data(city)
         if data == None :
-            return (dataclass.GuDC(**{'idNo':None, 'name':None, 'cityNo':'1100000000'}) for k in [0])
+            return (dataclass.GuDC(**{'idNo':None, 'name':None, 'cityNo':city}) for k in [0])
         guNoList = [data['regionList'][k]['cortarNo'] for k in range(0, len(data['regionList']))]
         guNameList = [data['regionList'][k]['cortarName'] for k in range(0, len(data['regionList']))]
         generator = (dataclass.GuDC(**{'idNo':guNoList[k], 'name':guNameList[k], 'cityNo':'1100000000'}) for k in range(0, len(data['regionList'])))

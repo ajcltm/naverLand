@@ -18,11 +18,13 @@ aip = dataProvider.ArticleInfoDataProvider()
 
 time = datetime.now().strftime('%Y%m%d-%H%M%S')
 
+city = '1100000000'
+
 class Create_city_gu_db :
 
     def excute(self):
         time = '20220207-231600'
-        gu_gen = gp.get_generator('4100000000')
+        gu_gen = gp.get_generator(city)
         gu_gen_gen = (gu_gen for k in [0])
 
         saver = saveLoad.GuSaver(f'naverLand({time})', f'city_gu')
@@ -34,7 +36,7 @@ class Create_gu_dong_db :
 
     def excute(self):
         time = '20220207-231600'
-        gu_gen = gp.get_generator('4100000000')
+        gu_gen = gp.get_generator(city)
         gu_gen_gen = (gu_gen for k in [0])
 
         saver = saveLoad.DongSaver(f'naverLand({time})', f'gu_dong')
@@ -47,7 +49,7 @@ class Create_dong_complex_db :
 
     def excute(self):
         time = '20220207-231600'
-        gu_gen = gp.get_generator('4100000000')
+        gu_gen = gp.get_generator(city)
         gu_gen_gen = (gu_gen for k in [0])
 
         saver = saveLoad.ComplexSaver(f'naverLand({time})', f'dong_complex')
