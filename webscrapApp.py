@@ -18,12 +18,12 @@ aip = dataProvider.ArticleInfoDataProvider()
 
 time = datetime.now().strftime('%Y%m%d-%H%M%S')
 
-city = '1100000000'
+city = '4100000000'
 
 class Create_city_gu_db :
 
     def excute(self):
-        time = '20220207-231600'
+        # time = '20220207-231600'
         gu_gen = gp.get_generator(city)
         gu_gen_gen = (gu_gen for k in [0])
 
@@ -35,7 +35,7 @@ class Create_city_gu_db :
 class Create_gu_dong_db :
 
     def excute(self):
-        time = '20220207-231600'
+        # time = '20220207-231600'
         gu_gen = gp.get_generator(city)
         gu_gen_gen = (gu_gen for k in [0])
 
@@ -48,7 +48,7 @@ class Create_gu_dong_db :
 class Create_dong_complex_db :
 
     def excute(self):
-        time = '20220207-231600'
+        # time = '20220207-231600'
         gu_gen = gp.get_generator(city)
         gu_gen_gen = (gu_gen for k in [0])
 
@@ -63,7 +63,7 @@ class Create_dong_complex_db :
 class Create_complex_article_db :
    
     def excute(self):
-        time = '20220207-231600'
+        # time = '20220207-231600'
         df = saveLoad.SqlLoader().load(f'naverLand({time})', f'dong_complex')
         complexlst = df.idNo.unique().tolist()
 
@@ -81,7 +81,7 @@ class Create_complex_article_db :
 class Create_article_info_db :
 
     def excute(self):
-        time = '20220207-231600'
+        # time = '20220207-231600'
         df = saveLoad.SqlLoader().load(f'naverLand({time})', f'complex_article')
         articlelst = df.idNo.unique().tolist()
         # articlelst = articlelst[articlelst.index('2134495995')+1:]
@@ -100,7 +100,7 @@ class ComplexPriceInputDC:
 
 class Create_complex_price_db :
     def excute(self):
-        time = '20220207-231600'
+        # time = '20220207-231600'
         fileName = f'naverLand({time})'
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         conn = sqlite3.connect(fileDir)

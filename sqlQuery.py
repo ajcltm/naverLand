@@ -30,7 +30,7 @@ class Tab1_table:
                 'article_info.walkingTimeToNearSubway', 'article_info.detailAddress', 'article_info.roomCount',
                 'article_info.bathroomCount', 'article_info.moveInTypeCode', 'article_info.moveInDiscussionPossibleYN',
                 'article_info.monthlyManagementCost', 'article_info.monthlyManagementCostIncludeItemName',
-                'article_info.buildingName', 'article_info.articleFeatureDescription', 'article_info.detailDescription',
+                'article_info.buildingName', 'article_info.articleFeatureDescription as articleFeatureDescription', 'article_info.detailDescription',
                 'article_info.floorLayerName', 'article_info.floorInfo', 'article_info.priceChangeState', 'article_info.dealOrWarrantPrc',
                 'article_info.direction', 'article_info.latitude', 'article_info.longitude',
                 'article_info.entranceTypeName', 'article_info.rentPrice',
@@ -39,7 +39,7 @@ class Tab1_table:
                 'article_info.bondPrice', 'article_info.middlePayment', 'article_info.realtorName', 'article_info.representativeName',
                 'article_info.address', 'article_info.representativeTelNo', 'article_info.cellPhoneNo', 'article_info.supplySpace',
                 'article_info.exclusiveSpace', 'article_info.exclusiveRate', 'article_info.tagList',
-                'v.complexNo as complexNo', 'v.ptpNo as ptpNo', 'v.date as date', 'v.price as price',
+                'v.complexNo as complexNo', 'v.ptpNo as ptpNo', 'v.date as date', 'v.price as price', 'v.pct_change as pct_change',
                 '(dong_complex.cortarAddress || " " || dong_complex.detailAddress) as fullAddress']
 
         cols_str = ', '.join(cols)
@@ -56,7 +56,7 @@ class Tab1_table:
 
         outer_join_6 = f'inner join (select c.*, max(c.price) from (SELECT a.* from complex_price_info as a join (select complex_price_info.idNo, max(complex_price_info.date) as date from complex_price_info group by complex_price_info.idNo) b on a.idNO = b.idNo and a.date = b.date) as c group by c.idNo) as v on v.idNo = complex_article.complexNo'
 
-        outer_join_6 = f'left outer join (select complex_price_info.idNo as complexNo, complex_price_info.ptpNo as ptpNo, max(complex_price_info.date) as date, complex_price_info.price as price from complex_price_info group by complexNo, ptpNo) v on v.complexNo=article_info.hscpNo and v.ptpNo = article_info.ptpNo'
+        outer_join_6 = f'left outer join (select complex_price_info.idNo as complexNo, complex_price_info.ptpNo as ptpNo, max(complex_price_info.date) as date, complex_price_info.price as price, complex_price_info.pct_change as pct_change from complex_price_info group by complexNo, ptpNo) v on v.complexNo=article_info.hscpNo and v.ptpNo = article_info.ptpNo'
 
         if where==None:
             sql = f'select {cols_str} from article_info {outer_join_1} {outer_join_2} {outer_join_3} {outer_join_4} {outer_join_5} {outer_join_6}'
@@ -65,7 +65,8 @@ class Tab1_table:
         else :
             sql = f'select {cols_str} from article_info {outer_join_1} {outer_join_2} {outer_join_3} {outer_join_4} {outer_join_5} {outer_join_6} {where}'
             print('='*100, f'sql : {sql}', sep='\n')
-        
+
+
         try:
             cur.execute(sql)
             dic = []
@@ -74,6 +75,7 @@ class Tab1_table:
             conn.close()
             return dic
         except :
+
             return None
 
 

@@ -9,7 +9,7 @@ class tab1_WhereHandler:
     
     def set_where_dict(self):
         db_cols = ['cityName', 'gu', 'dong', 'complex', 'articleNo', 'articleName',
-                    'dealPrice', 'realPrice',
+                    'dealPrice', 'realPrice', 'pct_change',
                     'allWarrantPrice', 'householdCountByPtp', 'aptUseApproveYmd','exposeStartYMD',
                     'realestateTypeCode', 'tradeTypeName', 'search']
         
@@ -47,15 +47,11 @@ class tab1_WhereHandler:
 
         if len(lst)>1 : 
             lst = text.split(',')
-            print(lst)
             wheres = [self.handle_numeric(i.strip(), target_col) for i in lst]
-            print(f'wheres : {wheres}')
             where = ' and '.join(wheres)
 
         else :
             where = self.handle_numeric(text, target_col)
-        
-        print(f'where : {where}')
 
         return where
 
@@ -64,9 +60,7 @@ class tab1_WhereHandler:
         reverseDic = {'>' : '<', '>=':'<=', '>=':'<=', '<':'>', '=<':'>=', '<=':'>=', '=':'='}
 
         symbol = re.findall(r'[^\d]+', text)[0].strip()
-        print(f'symbol: {symbol}')
         split_lst = text.split(symbol)
-        print(f'split_lst : {split_lst}')
 
         for item in enumerate(split_lst):
             if len(item[1].strip())>0:
@@ -79,22 +73,24 @@ class tab1_WhereHandler:
             final_symbol = reverseDic.get(symbol)
         else:
             final_symbol = correctDic.get(symbol)
-        print(f'final_symbol : {final_symbol}')
 
         try :
             where = f'{target_col}' + final_symbol + numeric
         except:
             where = 'warning'
-        print(where)
         return where
 
     def handle_searchLideEdit(self, text):
 
         dic = {'city': 'cityName', 'gu': 'gu', 'dong' : 'dong', 'complex' : 'complex', 
-                'articleName' : 'articleName', 'articleNo' : 'articleNo', 
-                'dealPrice' : 'dealPrice', 'realPrice' : 'v.price', 'allWarrant' : 'allWarrantPrice',
+                'articleName' : 'articleName', 'articleNo' : 'articleNo', 'address': 'fullAddress',
+                'dealPrice' : 'dealPrice', 'realPrice' : 'v.price', 'allWarrant' : 'allWarrantPrice', 'finance price': 'financePrice', 
                 'hhCount' : 'householdCountByPtp',  'ApproveYmd' : 'aptUseApproveYmd', 'exposeYMD':'exposeStartYMD', 
-                'estateType': 'realestateTypeCode','tradeType' : 'tradeTypeName'}
+                'estateType': 'realestateTypeCode','tradeType' : 'tradeTypeName',
+                'supply space': 'supplySpace', 'exclusive space': 'exclusiveSpace', 'exclusive rate':'exclusiveRate',
+                'time to subway': 'walkingTimeToNearSubway', 'dong count': 'totalDongCount', 'house count':'aptHouseholdCount',
+                'floor info': 'floorInfo', 'entrance type':'entranceTypeName'
+                }
 
         keys = dic.keys()
         text_ = text

@@ -157,7 +157,7 @@ class MainWindow(QWidget):
 
     def set_tab1(self):
         
-        cols = ['city', 'gu', 'dong', 'complex', 'articleName', 'articleNo', 'dealPrice', 'realPrice', 'allWarrant','hhCount',  'ApproveYmd', 'exposeYMD', 'estateType','tradeType']
+        cols = ['city', 'gu', 'dong', 'complex', 'articleName', 'articleNo', 'dealPrice', 'realPrice', 'pct_change', 'allWarrant','hhCount',  'ApproveYmd', 'exposeYMD', 'estateType','tradeType']
         self.tab1.setColumnCount(len(cols))
         self.tab1.setRowCount(len(self.tab1_data))
         
@@ -183,17 +183,17 @@ class MainWindow(QWidget):
         else :
             self.tab1.setRowCount(self.tab1_maxRowCount)
         db_cols = ['cityName', 'gu', 'dong', 'complex', 'articleName', 'articleNo',
-                     'dealPrice', 'price', 'allWarrantPrice',  
+                     'dealPrice', 'price', 'pct_change', 'allWarrantPrice',  
                     'householdCountByPtp','aptUseApproveYmd', 'exposeStartYMD',
                     'realestateTypeCode', 'tradeTypeName']
         width_cols = {
                 'cityName': 55, 'gu': 55, 'dong': 55, 'complex': 120, 'articleName': 160, 'articleNo': 90,
-                     'dealPrice': 80, 'price': 80, 'allWarrantPrice': 80,  
+                     'dealPrice': 80, 'price': 80, 'pct_change':100,'allWarrantPrice': 80,  
                     'householdCountByPtp': 80, 'aptUseApproveYmd': 80, 'exposeStartYMD': 80,
                     'realestateTypeCode': 80, 'tradeTypeName': 80
         }
 
-        numeric_cols = ['dealPrice', 'price', 'allWarrantPrice', 'householdCountByPtp']
+        numeric_cols = ['dealPrice', 'price', 'pct_change', 'allWarrantPrice', 'householdCountByPtp']
 
         for row_tuple in enumerate(self.tab1_data) :  # rows
             
@@ -279,28 +279,32 @@ class MainWindow(QWidget):
         self.tab1.setCellWidget(0, 7, self.realPrice_le)
         self.realPrice_le.returnPressed.connect(self.realPrice_cellLineEditClicked)
 
+        self.pct_change_le = QLineEdit()
+        self.tab1.setCellWidget(0, 8, self.pct_change_le)
+        self.pct_change_le.returnPressed.connect(self.pct_change_cellLineEditClicked)
+
         self.allWarrantPrice_le = QLineEdit()
-        self.tab1.setCellWidget(0, 8, self.allWarrantPrice_le)
+        self.tab1.setCellWidget(0, 9, self.allWarrantPrice_le)
         self.allWarrantPrice_le.returnPressed.connect(self.allWarrantPrice_cellLineEditClicked)
 
         self.hhCount_le = QLineEdit()
-        self.tab1.setCellWidget(0, 9, self.hhCount_le)
+        self.tab1.setCellWidget(0, 10, self.hhCount_le)
         self.hhCount_le.returnPressed.connect(self.hhCount_cellLineEditClicked)
 
         self.aptUseYMD_le = QLineEdit()
-        self.tab1.setCellWidget(0, 10, self.aptUseYMD_le)
+        self.tab1.setCellWidget(0, 11, self.aptUseYMD_le)
         self.aptUseYMD_le.returnPressed.connect(self.aptUseYMD_cellLineEditClicked)
 
         self.exposeStartYMD_le = QLineEdit()
-        self.tab1.setCellWidget(0, 11, self.exposeStartYMD_le)
+        self.tab1.setCellWidget(0, 12, self.exposeStartYMD_le)
         self.exposeStartYMD_le.returnPressed.connect(self.exposeStartYMD_cellLineEditClicked)
 
         self.estateType_le = QLineEdit()
-        self.tab1.setCellWidget(0, 12, self.estateType_le)
+        self.tab1.setCellWidget(0, 13, self.estateType_le)
         self.estateType_le.returnPressed.connect(self.estateType_cellLineEditClicked)
 
         self.tradeTypeName_le = QLineEdit()
-        self.tab1.setCellWidget(0, 13, self.tradeTypeName_le)
+        self.tab1.setCellWidget(0, 14, self.tradeTypeName_le)
         self.tradeTypeName_le.returnPressed.connect(self.tradeTypeName_cellLineEditClicked)
 
     def city_cellLineEditClicked(self):
@@ -463,6 +467,28 @@ class MainWindow(QWidget):
 
         dic = {key : value for key, value in self.where.items()}
         dic['realPrice'] = where_content
+        where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
+        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        if response :
+            self.tab1_data = response
+            self.where = dic
+        else:
+            self.Warning_event()
+        self.tab1_currentRowCount=0
+        self.tab1_maxRowCount=100   
+        self.set_tab1_contents()
+
+    def pct_change_cellLineEditClicked(self):
+        text = self.pct_change_le.text()
+
+        target_col = 'v.pct_change'
+        if len(text) > 0 :
+            where_content = whereClause.tab1_WhereHandler().handle_comma_numeric(text, target_col)
+        else :
+            where_content = None
+
+        dic = {key : value for key, value in self.where.items()}
+        dic['pct_change'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
         response = sqlQuery.Tab1_table().get_data(where=where_clause)
         if response :
