@@ -37,7 +37,6 @@ class tab1_WhereHandler:
             where = f'''{target_col} in ({str_}) '''
         else :
             where = f'''{target_col} REGEXP '^{lst[0]}' '''
-        print(where)
 
         return where
 
@@ -77,7 +76,46 @@ class tab1_WhereHandler:
         try :
             where = f'{target_col}' + final_symbol + numeric
         except:
-            where = 'warning'
+            where = None
+        return where
+
+    def handle_comma_date(self, text, target_col):
+
+        lst = text.split(',')
+
+        if len(lst)>1 : 
+            lst = text.split(',')
+            wheres = [self.handle_date(i.strip(), target_col) for i in lst]
+            where = ' and '.join(wheres)
+
+        else :
+            where = self.handle_date(text, target_col)
+
+        return where
+
+    def handle_date(self, text, target_col):
+        correctDic = {'>' : '>', '>=':'>=', '=>':'>=', '<':'<', '<=':'<=', '<=':'<=', '=':'='}
+        reverseDic = {'>' : '<', '>=':'<=', '>=':'<=', '<':'>', '=<':'>=', '<=':'>=', '=':'='}
+
+        symbol = re.findall(r'[^\d]+', text)[0].strip()
+        split_lst = text.split(symbol)
+
+        for item in enumerate(split_lst):
+            if len(item[1].strip())>0:
+                date = item[1].strip()
+                trueOrFalse = item[0]
+            else:
+                date, trueOrFalse = None, None
+
+        if trueOrFalse == 0:
+            final_symbol = reverseDic.get(symbol)
+        else:
+            final_symbol = correctDic.get(symbol)
+
+        try :
+            where = f'{target_col}' + final_symbol + f"('{date}')"
+        except:
+            where = None
         return where
 
     def handle_searchLideEdit(self, text):

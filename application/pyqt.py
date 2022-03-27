@@ -27,7 +27,8 @@ class MainWindow(QWidget):
 
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.tab1_init_data = sqlQuery.Tab1_table().get_data()
+        self.Tab1_table = sqlQuery.Tab1_table()
+        self.tab1_init_data = self.Tab1_table.get_data(very_first=True)
         self.tab1_data = self.tab1_init_data
         self.tab1_currentRowCount = 0
         self.tab1_maxRowCount = 100
@@ -143,7 +144,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['search'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -230,7 +231,7 @@ class MainWindow(QWidget):
 
         where = whereClause.label_WhereHandler().get_where_clause(articleNo)
 
-        self.label_data = sqlQuery.Tab1_table().get_data(where=where)[0]
+        self.label_data = self.Tab1_table.get_data(where=where)[0]
         self.set_mainGroupBox_label(update=True)
         self.set_detailGroupBox_label(update=True)
         self.set_brokerGroupBox_label(update=True)
@@ -319,7 +320,7 @@ class MainWindow(QWidget):
         dic['cityName'] = where_content
         
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -340,7 +341,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['gu'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -361,7 +362,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['dong'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -382,7 +383,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['complex'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -403,7 +404,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['articleName'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -424,7 +425,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['articleNo'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -446,7 +447,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['dealPrice'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -468,7 +469,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['realPrice'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -489,8 +490,9 @@ class MainWindow(QWidget):
 
         dic = {key : value for key, value in self.where.items()}
         dic['pct_change'] = where_content
+        print(f'where_content : {where_content}')
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -512,7 +514,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['allWarrantPrice'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -534,7 +536,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['householdCountByPtp'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -549,14 +551,14 @@ class MainWindow(QWidget):
 
         target_col = 'aptUseApproveYmd'
         if len(text) > 0 :
-            where_content = whereClause.tab1_WhereHandler().handle_comma_numeric(text, target_col)
+            where_content = whereClause.tab1_WhereHandler().handle_comma_date(text, target_col)
         else :
             where_content = None
 
         dic = {key : value for key, value in self.where.items()}
         dic['aptUseApproveYmd'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -571,14 +573,14 @@ class MainWindow(QWidget):
 
         target_col = 'exposeStartYMD'
         if len(text) > 0 :
-            where_content = whereClause.tab1_WhereHandler().handle_comma_numeric(text, target_col)
+            where_content = whereClause.tab1_WhereHandler().handle_comma_date(text, target_col)
         else :
             where_content = None
 
         dic = {key : value for key, value in self.where.items()}
         dic['exposeStartYMD'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -599,7 +601,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['realestateTypeCode'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic
@@ -620,7 +622,7 @@ class MainWindow(QWidget):
         dic = {key : value for key, value in self.where.items()}
         dic['tradeTypeName'] = where_content
         where_clause = whereClause.tab1_WhereHandler().get_where_clause(dic)
-        response = sqlQuery.Tab1_table().get_data(where=where_clause)
+        response = self.Tab1_table.get_data(where=where_clause)
         if response :
             self.tab1_data = response
             self.where = dic

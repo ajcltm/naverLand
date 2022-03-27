@@ -20,7 +20,7 @@ class Merge:
         self.gu_dong_field_type = ['TEXT', 'TEXT', 'TEXT']
 
         self.dong_complex_field = ['idNo', 'name', 'dongNo', 'realEstateTypeCode', 'cortarAddress', 'detailAddress', 'totalHouseholdCount', 'totalBuildingCount', 'highFloor', 'lowFloor', 'useApproveYmd']
-        self.dong_complex_field_type = ['TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'INTEGER', 'INTEGER', 'INTEGER', 'INTEGER', 'DATE']
+        self.dong_complex_field_type = ['TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'INTEGER', 'INTEGER', 'INTEGER', 'INTEGER', 'TIMESTAMP']
         
         self.complex_article_field = ['idNo', 'name', 'complexNo']
         self.complex_article_field_type = ['TEXT', 'TEXT', 'TEXT']
@@ -45,9 +45,9 @@ class Merge:
         'exclusiveSpace', 'exclusiveRate', 'tagList']
 
         self.article_info_field_type = ['TEXT', 'TEXT', 'TEXT', 'TEXT', 'Text',
-         'DATE', 'DATE',
-        'DATE', 'TEXT', 'INTEGER',
-        'TEXT', 'DATE', 'INTEGER',
+         'TIMESTAMP', 'TIMESTAMP',
+        'TIMESTAMP', 'TEXT', 'INTEGER',
+        'TEXT', 'TIMESTAMP', 'INTEGER',
         'TEXT', 'TEXT', 'TEXT',
         'TEXT', 'TEXT', 'TEXT', 'INTEGER',
         'INTEGER', 'TEXT', 'INTEGER',
@@ -63,8 +63,8 @@ class Merge:
         'TEXT', 'TEXT', 'TEXT', 'REAL',
         'REAL', 'REAL', 'TEXT']
 
-        self.complex_price_info_field = ['idNo', 'ptpNo','date', 'price', 'pct_change']
-        self.complex_price_info_field_type = ['TEXT', 'TEXT','DATE', 'INTEGER', 'REAL']
+        self.complex_price_info_field = ['idNo', 'ptpNo', 'date', 'price', 'pct_change']
+        self.complex_price_info_field_type = ['TEXT', 'TEXT','TIMESTAMP', 'INTEGER', 'REAL']
 
         self.file_path = self.create_file()
         self.con_ = sqlite3.connect(self.file_path)
@@ -93,7 +93,7 @@ class Merge:
             filePath = dir / f'{fileName}.db'
         else :
             time = datetime.now().strftime('%Y%m%d-%H%M%S')
-            filePath = dir / f'naverLand({time}).db'
+            filePath = dir / f'naverLand({time})_preprocessed.db'
         return filePath
 
     def make_create_table_query(self):
@@ -222,11 +222,15 @@ class Merge:
         for values in tqdm(lst, bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}'):
             query = preprocessing.Query().get_query(table, values)
             self.cur_.execute(query)
+            # try:
+            #     self.cur_.execute(query)
+            # except:
+            #     print(query)
         
 
 if __name__ == '__main__':
-    file = Path.cwd().joinpath('naverLand', 'db', 'naverLand(20220205-152900).db')
-    file_ = Path.cwd().joinpath('naverLand', 'db', 'naverLand(20220207-231600).db')
+    file = Path.cwd().joinpath('naverLand', 'db', 'naverLand(20220307-222615).db')
+    file_ = Path.cwd().joinpath('naverLand', 'db', 'naverLand(20220304-075118).db')
     Merge([file, file_]).merge_file()
 
 

@@ -1,28 +1,44 @@
+parentPath='c:/Users/ajcltm/PycharmProjects/naverLand'
+import sys
+sys.path.append(parentPath)
+from library import dbFields
+
+import dataclasses
 import sqlite3
-from pathlib import Path
-from numpy import where
-import pandas as pd
-import re
 
-def regexp(expr, item):
-    reg = re.compile(expr)
-    return reg.search(item) is not None
 
-time_str = '(20220302-011045)'
+class GeneralQuery :
 
-class Tab1_table:
+    def __init__(self, db_path):
+        self.conn = sqlite3.connect(db_path)
+    
+    def get(self, sql):
+        cur = self.conn.cursor()
+        cur.execute(sql)
+        attr = self.get_attr(sql)
+        _dataclass = dataclasses.make_dataclass('Data', attr)
+        data = (_dataclass(**{key: data[i] for i, key in enumerate(attr)}) for data in cur.fetchall())
+        return data
 
-    def __init__(self):
-        self.defalut_dic = None
+    def get_attr(self, sql):
+        sql = sql.replace(',', '')
+        lst = sql.split()
+        s = lst.index('select')
+        e = lst.index('from')
+        attr = lst[s+1:e]
+        if attr[0] == '*':
+            table_name = lst[e+1]
+            attr = dbFields.Fields().fields_dct[table_name]
+        return attr
 
-    def get_data(self, where=None, very_first=False):
-        fileName = f'naverLand{time_str}'
-        fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
-        print(fileDir)
-        conn = sqlite3.connect(fileDir)
-        conn.create_function("REGEXP", 2, regexp)
-        conn.row_factory = sqlite3.Row
-        cur = conn.cursor()
+class BasicQuery:
+
+    def __init__(self, db_path):
+        self.conn = sqlite3.connect(db_path)
+
+    def get(self, where=None):
+        self.conn.row_factory = sqlite3.Row
+        cur = self.conn.cursor()
 
         cols = ['city_info.cityName as cityName', 'city_gu.cityNo', 'city_gu.name as gu', 'gu_dong.name as dong', 'dong_complex.name as complex',
                 'article_info.articleNo', 'article_info.articleName', 'article_info.exposeStartYMD', 'article_info.exposeEndYMD',
@@ -61,100 +77,23 @@ class Tab1_table:
 
         outer_join_6 = f'left outer join (select complex_price_info.idNo as complexNo, complex_price_info.ptpNo as ptpNo, max(complex_price_info.date) as date, complex_price_info.price as price, complex_price_info.pct_change as pct_change from complex_price_info group by complexNo, ptpNo) v on v.complexNo=article_info.hscpNo and v.ptpNo = article_info.ptpNo'
 
-        if where==None:
-            sql = f'select {cols_str} from article_info {outer_join_1} {outer_join_2} {outer_join_3} {outer_join_4} {outer_join_5} {outer_join_6}'
-            print('='*100, f'sql : {sql}', sep='\n')
-            if very_first:
-                cur.execute(sql)
-                dic = []
-                for row in cur.fetchall():
-                    dic.append({key : row[key] for key in row.keys()})
-                conn.close()
-                self.defalut_dic = dic
-                return dic
-            else:
-                return self.defalut_dic
-
-        else :
+        if where :
             sql = f'select {cols_str} from article_info {outer_join_1} {outer_join_2} {outer_join_3} {outer_join_4} {outer_join_5} {outer_join_6} {where}'
-            print('='*100, f'sql : {sql}', sep='\n')
-
-            cur.execute(sql)
-            dic = []
-            for row in cur.fetchall():
-                dic.append({key : row[key] for key in row.keys()})
-            conn.close()
-            return dic
-            # try:
-            #     cur.execute(sql)
-            #     dic = []
-            #     for row in cur.fetchall():
-            #         dic.append({key : row[key] for key in row.keys()})
-            #     conn.close()
-            #     return dic
-            # except :
-            #     return None
-
-
-class Tab4_table:
-
-    def get_data(self, where=None):
-        fileName = f'naverLand{time_str}'
-        fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
-        conn = sqlite3.connect(fileDir)
-        conn.create_function("REGEXP", 2, regexp)
-        conn.row_factory = sqlite3.Row
-        cur = conn.cursor()
-
-        if where==None:
-            sql = f'select date, price from complex_price_info'
-            cur.execute(sql)
         else :
-            sql = f'select date, price from complex_price_info {where}'
-            cur.execute(sql)
+            sql = f'select {cols_str} from article_info {outer_join_1} {outer_join_2} {outer_join_3} {outer_join_4} {outer_join_5} {outer_join_6}'
+        cur.execute(sql)
+        attr = dbFields.Fields().fields_dct['basic_info']
+        _dataclass = dataclasses.make_dataclass('Data', attr)
+        return (_dataclass(**{key: data[i] for i, key in enumerate(attr)}) for data in cur.fetchall())
 
-        dic = []
-        for row in cur.fetchall():
-            dic.append({key : row[key] for key in row.keys()})
-        conn.close()
+if __name__ == '__main__':
+    from pathlib import Path
+    file_name = 'naverLand(20220309-132731)_preprocessed.db'
+    db_path = Path().cwd().joinpath('naverLand', 'db', file_name)
+    print(db_path)
+    # sql = f'select * from article_info'
+    # q = Query(db_path).get(sql)
+    # print(list(q)[:1])
+    q = BasicQuery(db_path).get(where="where dealPrice<price ")
+    print([(data.complex, data.dealPrice, data.price) for data in list(q)][:10])
 
-        return dic
-
-if __name__ == '__main__':  # ex : '1100000000' -> seoul / '4100000000' -> guenggi
-    
-
-    # data = [['서울시', '1100000000'], ['경기도', '4100000000']]
-
-    # fileName = f'naverLand(20220309-132731)_preprocessed.db'
-    # fileDir = Path.cwd() / 'naverLand' / 'db' / fileName
-
-    # conn = sqlite3.connect(fileDir)
-    # cur = conn.cursor()
-
-    # query = f'create table city_info (cityName Text, cityNo Text)'
-    # cur.execute(query)
-
-    # for i in data :
-    #     query = f'''insert into city_info values ('{i[0]}', {i[1]})'''
-    #     print(query)
-    #     cur.execute(query)
-    # conn.commit()
-    
-    # conn.close()
-
-
-    # fileName = 'naverLand(20220207-231600).db'
-    # fileDir = Path.cwd() / 'naverLand' / 'db' / fileName
-
-    # conn = sqlite3.connect(fileDir)
-    # cur = conn.cursor()
-
-    # query = 'select * from city_gu'
-    # cur.execute(query)
-
-    # for row in cur.fetchall():
-    #     query = f"insert into city_gu values ('{row[0]}', '{row[1]}', 4100000000)"
-    #     cur.execute(query)
-    
-    # conn.commit()
-    # conn.close()

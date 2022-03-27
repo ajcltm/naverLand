@@ -37,11 +37,11 @@ class Dong_complex(BaseModel):
     def datetime_validate(cls, v):
         if v:
             if len(v) >6:
-                return datetime.strptime(v, '%Y%m%d').strftime('%Y-%m-%d')
+                return datetime.strptime(v, '%Y%m%d')
             elif len(v) == 6:
-                return datetime.strptime(v, '%Y%m').strftime('%Y-%m-%d')
+                return datetime.strptime(v, '%Y%m')
             elif len(v) == 4:
-                return datetime.strptime(v, '%y%m').strftime('%Y-%m-%d')
+                return datetime.strptime(v, '%y%m')
 
 
 class Complex_article(BaseModel):
@@ -123,11 +123,11 @@ class Article_info(BaseModel):
     def exposeStartYMD_validate(cls, v):
         if v:
             if len(v) >6:
-                return datetime.strptime(v, '%Y%m%d').strftime('%Y-%m-%d')
+                return datetime.strptime(v, '%Y%m%d')
             elif len(v) == 6:
-                return datetime.strptime(v, '%Y%m').strftime('%Y-%m-%d')
+                return datetime.strptime(v, '%Y%m')
             elif len(v) == 4:
-                return datetime.strptime(v, '%y%m').strftime('%Y-%m-%d')
+                return datetime.strptime(v, '%y%m')
 
     @validator('articleFeatureDescription', 'detailDescription', 'tagList')
     def articleFeatureDescription_validator(cls, v):
@@ -175,7 +175,7 @@ class Query:
         return query
 
     def get_string_format(self, value):
-        if type(value) == str:
+        if type(value) == str or type(value)==datetime: 
             return f"'{value}'"
         elif value == None:
             return "Null"
