@@ -99,9 +99,9 @@ article_info_fields =[
 complex_price_info_fields = [
     'idNo',
     'ptpNo',
-    'pct_change',
     'date',
-    'price'
+    'price',
+    'pct_change'
 ]
 
 basic_fields = [
@@ -125,7 +125,7 @@ basic_fields = [
     'verificationTypeCode', 
     'divisionName', 
     'sectionName', 
-    'fullAddress',
+    'dongName',
     'householdCountByPtp', 
     'walkingTimeToNearSubway', 
     'detailAddress', 
@@ -170,8 +170,8 @@ basic_fields = [
     'ptpNo', 
     'date', 
     'price', 
-    'pct_change'
-    
+    'pct_change',
+    'fullAddress'
 ]
 
 @dataclass

@@ -37,7 +37,7 @@ class BasicQuery:
         self.conn = sqlite3.connect(db_path)
 
     def get(self, where=None):
-        self.conn.row_factory = sqlite3.Row
+        # self.conn.row_factory = sqlite3.Row
         cur = self.conn.cursor()
 
         cols = ['city_info.cityName as cityName', 'city_gu.cityNo', 'city_gu.name as gu', 'gu_dong.name as dong', 'dong_complex.name as complex',
