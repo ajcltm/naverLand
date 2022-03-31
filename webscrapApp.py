@@ -80,55 +80,83 @@ class Create_complex_article_db :
 
 class Create_article_info_db :
 
-    def excute(self):
-        # time = '20220303-001629'
-        df = saveLoad.SqlLoader().load(f'naverLand({time})', f'complex_article')
+    def excute(self, dbName=None):
+        if not dbName :
+            df = saveLoad.SqlLoader().load(f'naverLand({time})', f'complex_article')
+        else:
+            self.dbName = dbName
+            df = saveLoad.SqlLoader().load(f'{dbName}', f'complex_article')
         articlelst = df.idNo.unique().tolist()
-        # articlelst = articlelst[articlelst.index('2206740625')+1:]
+        if dbName:
+            i = self.get_nonExisted_index(dbName, articlelst)
+            articlelst = articlelst[i:]
         nt = namedtuple('nt', ['idNo']) 
         article_gen = (nt(k) for k in articlelst)
         article_gen_gen = (article_gen for k in [0])
-        saver = saveLoad.ArticleInfoSaver(f'naverLand({time})', f'article_info')
+        if not dbName:
+            saver = saveLoad.ArticleInfoSaver(f'naverLand({time})', f'article_info')
+        else:
+            saver = saveLoad.ArticleInfoSaver(f'{dbName}', f'article_info')
         save_looper = forLooper.SavingLooper(saver)
         article_looper = forLooper.idLooper(aip, save_looper)
         article_looper.handle_request(article_gen_gen)
 
-@dataclass(unsafe_hash=True, order=True)
+    def get_nonExisted_index(self, dbName, lst):
+        q = saveLoad.SqlLoader().load(f'{dbName}', f'article_info')
+        existed_lst = [i['articleNo'] for i in q.to_dict(orient='records')]
+
+        for i in lst:
+            if not i in existed_lst:
+                return lst.index(i)
+
+
 class ComplexPriceInputDC:
     idNo : str
     ptpNo : str
 
 class Create_complex_price_db :
-    def excute(self):
-        # time = '20220303-001629'
-        fileName = f'naverLand({time})'
-        fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
-        conn = sqlite3.connect(fileDir)
-        cur = conn.cursor()
-        query = f'select hscpNo, ptpNo from article_info'
-        cur.execute(query)
-
-        unique_dc = set([ComplexPriceInputDC(i[0], i[1]) for i in cur.fetchall()])
-        unique_dc_gen = (dc for dc in unique_dc) 
+    def excute(self, dbName):
+        if not dbName :
+            df = saveLoad.SqlLoader().load(f'naverLand({time})', f'article_info')
+        else:
+            self.dbName = dbName
+            df = saveLoad.SqlLoader().load(f'{dbName}', f'article_info')
+        lst = df[['hscpNo', 'ptpNo']].to_dict(orient='records')
+        lst = [ComplexPriceInputDC(idNo=i['hscpNo'], ptpNo=i['ptpNo']) for i in lst]
+        if dbName:
+            i = self.get_nonExisted_index(dbName, lst)
+            lst = lst[i:]
+        
+        unique_dc_gen = (dc for dc in lst) 
         unique_dc_gen_gen = (unique_dc_gen for i in [0])
-
-        saver = saveLoad.ComplexPriceSaver(f'naverLand({time})', f'complex_price_info')
+        if not dbName:
+            saver = saveLoad.ComplexPriceSaver(f'naverLand({time})', f'complex_price_info')
+        else:
+            saver = saveLoad.ComplexPriceSaver(f'{dbName}', f'complex_price_info')
         save_looper = forLooper.SavingLooper(saver)
         complex_price_looper = forLooper.id_ptpNo_Looper(cpp, save_looper)
         complex_price_looper.handle_request(unique_dc_gen_gen)
-        conn.close()
+
+    
+    def get_nonExisted_index(self, dbName, lst):
+        q = saveLoad.SqlLoader().load(f'{dbName}', f'complex_price_info')
+        q_ = q[['hscpNo', 'ptpNo']].to_dict(orient='records')
+        existed_lst = [ComplexPriceInputDC(idNo=i['hscpNo'], ptpNo=i['ptpNo']) for i in q_]
+
+        for i in lst:
+            if not i in existed_lst:
+                return lst.index(i)
 
 
 def main() :
 
-    Create_city_gu_db().excute()
-    Create_gu_dong_db().excute()
-    Create_dong_complex_db().excute()
+    # Create_city_gu_db().excute()
+    # Create_gu_dong_db().excute()
+    # Create_dong_complex_db().excute()
     
-    Create_complex_article_db().excute()
-    Create_article_info_db().excute()
-
-    Create_complex_price_db().excute()
+    # Create_complex_article_db().excute()
+    Create_article_info_db().excute('naverLand(20220330-225304)')
+    Create_complex_price_db().excute('naverLand(20220330-225304)')
 
 
 if __name__ == '__main__' :
