@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 class Merge:
 
-    def __init__(self, fileLst):
+    def __init__(self, fileLst, fileName=None):
         self.fileLst = fileLst
         self.tableLst = ['city_gu', 'gu_dong', 'dong_complex', 'complex_article', 'article_info', 'complex_price_info']
         self.city_gu_field = ['idNo', 'name', 'cityNo']
@@ -66,11 +66,12 @@ class Merge:
         self.complex_price_info_field = ['idNo', 'ptpNo', 'date', 'price', 'pct_change']
         self.complex_price_info_field_type = ['TEXT', 'TEXT','TIMESTAMP', 'INTEGER', 'REAL']
 
-        self.file_path = self.create_file()
+        self.file_path = self.create_file(fileName)
+        self.create_city_info_table(self.file_path)
         self.con_ = sqlite3.connect(self.file_path)
         self.cur_ = self.con_.cursor()
 
-    def create_file(self, fileName = None):
+    def create_file(self, fileName):
         filePath = self.get_file_path(fileName)
         con = sqlite3.connect(filePath)
         cur = con.cursor()
@@ -95,6 +96,23 @@ class Merge:
             time = datetime.now().strftime('%Y%m%d-%H%M%S')
             filePath = dir / f'naverLand({time})_preprocessed.db'
         return filePath
+
+    def create_city_info_table(self, file_path):
+        data = [['서울시', '1100000000'], ['경기도', '4100000000']]
+
+        conn = sqlite3.connect(file_path)
+        cur = conn.cursor()
+
+        query = f'create table city_info (cityName Text, cityNo Text)'
+        cur.execute(query)
+
+        for i in data :
+            query = f'''insert into city_info values ('{i[0]}', {i[1]})'''
+            print(query)
+            cur.execute(query)
+        conn.commit()
+        
+        conn.close()
 
     def make_create_table_query(self):
         city_gu = [' '.join([field, self.city_gu_field_type[i]]) for i, field in enumerate(self.city_gu_field)]
@@ -214,8 +232,9 @@ class Merge:
     def get_dict_format_lst(self, cur, feild):
         data = []
         for row in cur.fetchall():
-            dic = {key : row[i] for i, key in enumerate(feild)}
-            data.append(dic)
+            if row[1] and row[2] :
+                dic = {key : row[i] for i, key in enumerate(feild)}
+                data.append(dic)
         return data
 
     def implement_query(self, lst, table):
@@ -226,11 +245,12 @@ class Merge:
             #     self.cur_.execute(query)
             # except:
             #     print(query)
+
         
 
 if __name__ == '__main__':
-    file = Path.cwd().joinpath('naverLand', 'db', 'naverLand(20220307-222615).db')
-    file_ = Path.cwd().joinpath('naverLand', 'db', 'naverLand(20220304-075118).db')
+    file = Path.cwd().joinpath('naverLand', 'db', 'naverLand(20220330-225304).db')
+    file_ = Path.cwd().joinpath('naverLand', 'db', 'naverLand(20220407-005031).db')
     Merge([file, file_]).merge_file()
 
 

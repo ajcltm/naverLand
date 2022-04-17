@@ -140,7 +140,10 @@ class SqlLoader:
         fileDir = Path.cwd() / 'naverLand' / 'db' / f'{fileName}.db'
         print('='*100, f'fileDir: \n {fileDir}', sep='\n')
         con = sqlite3.connect(fileDir)
-        df = pd.read_sql(f'SELECT * FROM {tableName}', con, index_col=None)
+        try:
+            df = pd.read_sql(f'SELECT * FROM {tableName}', con, index_col=None)
+        except:
+            df = None
         return df
 
 

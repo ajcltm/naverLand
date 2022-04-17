@@ -53,7 +53,7 @@ class Complex_article(BaseModel):
 class Article_info(BaseModel):
     articleNo: str
     articleName: str
-    hscpNo: str
+    hscpNo: Optional[str]
     ptpNo: Optional[str]
     ptpName: Optional[str]
     exposeStartYMD: Optional[str]
@@ -158,6 +158,7 @@ class Pct_chagne(BaseModel):
         cur = con.cursor()
         query = 'select * from complex_price_info'
         df = pd.read_sql(query, con, index_col=None)
+        df['price'] = df['price'].apply(pd.to_numeric, errors = 'ignore')
         df['pct_change'] = df.groupby(['idNo', 'ptpNo']).price.pct_change()
         df = df.where(pd.notnull(df), None)
         pct_change_lst=df.loc[:, 'pct_change'].to_list()
@@ -175,7 +176,11 @@ class Query:
         return query
 
     def get_string_format(self, value):
-        if type(value) == str or type(value)==datetime: 
+        if type(value) == str :
+            value = value.replace('"', '')
+            value = value.replace("'", '')
+            return f"'{value}'"
+        elif type(value)==datetime:
             return f"'{value}'"
         elif value == None:
             return "Null"
